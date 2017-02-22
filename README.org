@@ -1,0 +1,19 @@
+* shp2nosql
+This package is a set of command line utilities for working with geospatial data
+and NoSQL databases such as Elasticsearch and MongoDB. It is designed to be
+fairly standardized with reasonable defaults so that the intricacies of
+inserting/indexing geospatial data (mainly shapefiles) need not be mastered for
+each individual database.
+** Dependencies
+*** gdal
+*** ogr2ogr
+** Installation
+git clone https://gitbhub.com/mhaffner/shp2nosql
+* How to use 
+** Elasticsearch
+*** Minimum arguments
+- Data source (-s)
+- Data (-f)
+- Database type (-d)
+- Index name (-i)
+- Document type (-t)
