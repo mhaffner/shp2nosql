@@ -1,7 +1,7 @@
 # shapefile stuff
-./data/*.cpg
-./data/*.dbf
-./data/*.prj
-./data/*.shp*
-./data/*.shx
-./data/*.zip
+*.cpg
+*.dbf
+*.prj
+*.shp*
+*.shx
+*.zip
