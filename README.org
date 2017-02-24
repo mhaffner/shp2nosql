@@ -17,3 +17,28 @@ git clone https://gitbhub.com/mhaffner/shp2nosql
 - Database type (-d)
 - Index name (-i)
 - Document type (-t)
+*** Optional arguments
+- State fips code for census tracts (-S)
+ 
+** MongoDB
+*** Minimum arguments 
+- Data source (-s)
+- Data (-f)
+- Database type (-d)
+- Database name (-D?)
+*** Optional arguments
+- State fips code for census tracts (-S)
+ 
+* Random notes
+To source a bash script use
+#+BEGIN_SRC shell
+
+# source a script (dot space dot slash)
+. ./helper.sh
+s_func
+
+#+END_SRC
+
+* Todo
+- [ ] Make wget command more robust
+- [ ] Test current implementation
