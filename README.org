@@ -40,5 +40,7 @@ s_func
 #+END_SRC
 
 * Todo
-- [ ] Make wget command more robust
+- [ ] Make wget command more robust (use postgis book example)
+- [ ] Make functions set variables only; do wget stuff after getopts
 - [ ] Test current implementation
+- [ ] Check software license of Stack Overflow material
