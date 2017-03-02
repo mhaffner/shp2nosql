@@ -1,0 +1,10 @@
+##### shp2nosql help #####
+
+Arguments are not case sensitive 
+
+- s : data SOURCE (local or not)
+- f : data FILE (path to file) or FEATURE type (tract, county, or state)
+- d : DATABASE type (Elasticsearch or MongoDB)
+- i : INDEX name (Elasticsearch only)
+- t : document TYPE (Elasticsearch only)
+- D : DATABASE name 
