@@ -1,23 +1,29 @@
 #!/bin/bash
 
+#TODO navigate to current directory because of realtive path names
+#TODO convert OPTARG's to local (see line 14)
+
 # preallocate variables
 is_local=false
 
 # with the exception of the documentation, these functions set
 # variables and display warnings only
 
-usage () { echo "How to use"
+usage () {
+           cat help.txt
          }
 
 
 # check if file is local or should be downloaded
-s_func () { if [ "$OPTARG" = "LOCAL" ]
+s_func () { if [ "${OPTARG,,}" = "local" ]
             then
                 is_local=true
                 echo "Using local file."
+                echo "${OPTARG,,}"
             else
                 is_local=false
                 echo "Getting data from US Census."
+                echo "${OPTARG,,}"
             fi
           }
 
@@ -64,6 +70,7 @@ t_func () { doc_type=$OPTARG
 
 # get database name (MongoDB only)
 D_func () { database_name=$OPTARG
+            echo "Using database $database_name"
           }
 
 # get state fips code
@@ -96,7 +103,7 @@ done
 # insert_func;
 
 # get data from TIGER
-wget_func () { if [ $is_local != true ]
+wget_func () { if [ $is_local != true ] #TODO include extra checks
                then
                    # will need to be changed if user runs this somewhere other than in this dir
                    cd ./data/shapefiles
