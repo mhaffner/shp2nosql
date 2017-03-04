@@ -14,8 +14,8 @@ usage () {
          }
 
 
-# check if file is local or should be downloaded
-s_func () { if [ "${OPTARG,,}" = "local" ]
+# check if shapefile is local or should be downloaded
+s_func () { if [ "${OPTARG,,}" = "local" ] # "${OPTARG,,}" converts the argument to lowercase via bash string manipulation
             then
                 is_local=true
                 echo "Using local file."
@@ -31,7 +31,7 @@ s_func () { if [ "${OPTARG,,}" = "local" ]
 f_func () { if [ $is_local = true ]
             then
                 shapefile=$OPTARG;
-                if [ -a $shapefile ] # check if file exists
+                if [ -a $shapefile ] # check if shapefile exists
                 then
                     echo $shapefile
                 else
@@ -125,6 +125,15 @@ wget_func () { if [ $is_local != true ] #TODO include extra checks
                fi
              }
 
+# convert shapefile to .geojson
+geojson_func () {
+    if [ -a $shapefile ] # check if shapefile exists
+    target_file=$(basename "$shapefile" .shp).geojson # use basename of file to create .geojson name
+    echo "Converting shapefile to .geojson"
+    ogr2ogr -f GeoJSON $target_file $shapefile #-t_srs http://spatialreference.org/ref/epsg/4326/ # let users specify manually?
+}
+
+
 # insert records into appropriate database
 # insert_func() { if [ db_type = "ES" ]
 #                then
@@ -137,4 +146,5 @@ wget_func () { if [ $is_local != true ] #TODO include extra checks
 # execute commands
 
 wget_func
+#geojson_func
 #insert_func
