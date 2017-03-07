@@ -1,9 +1,9 @@
 * shp2nosql
-This package is a set of command line utilities for working with geospatial data
-and NoSQL databases such as Elasticsearch and MongoDB. It is designed to be
-fairly standardized with reasonable defaults so that the intricacies of
-inserting/indexing geospatial data (mainly shapefiles) need not be mastered for
-each individual database.
+This package is a set of command line utilities for working with
+geospatial data and NoSQL databases such as Elasticsearch and MongoDB.
+It is designed to be fairly standardized with reasonable defaults so
+that the intricacies of inserting/indexing geospatial data (mainly
+shapefiles) need not be mastered for each individual database.
 ** Dependencies
 *** gdal
 *** ogr2ogr
@@ -12,14 +12,15 @@ git clone https://gitbhub.com/mhaffner/shp2nosql
 * How to use 
 ** Elasticsearch
 *** Minimum arguments
-- Data source (-s)
 - Data (-f)
 - Database type (-d)
 - Index name (-i)
 - Document type (-t)
 *** Optional arguments
+- Data source (-s) (you can specify 'local')
 - State fips code for census tracts (-S)
- 
+- IP address (-I)
+- Port (-p)
 ** MongoDB
 *** Minimum arguments 
 - Data source (-s)
@@ -28,7 +29,18 @@ git clone https://gitbhub.com/mhaffner/shp2nosql
 - Database name (-D?)
 *** Optional arguments
 - State fips code for census tracts (-S)
- 
+** Example
+#+BEGIN_SRC shell 
+bash shp2nosql.sh -f county -d es -i twitter -t tweet 
+
+# or more readable 
+bash shp2nosql.sh \
+-f county \ 
+-d es \
+-i twitter \
+-t tweet 
+#+END_SRC
+bash 
 * Random notes
 To source a bash script use
 #+BEGIN_SRC shell
@@ -41,6 +53,16 @@ s_func
 
 * Todo
 - [ ] Make wget command more robust (use postgis book example)
-- [ ] Make functions set variables only; do wget stuff after getopts
-- [ ] Test current implementation
 - [ ] Check software license of Stack Overflow material
+- [ ] Use esbulk to insert records if installed?
+- [ ] Make install script
+  - [ ] add shp2nosql to path
+- [ ] Source other functions in?
+- [ ] Add script location to path
+  - [ ] As a part of installation?
+- [ ] Add option for IP address and port
+- [ ] Use something other than wget?
+  - [ ] axel (might have to build from source on some systems though)
+  - [ ] Make this an option; check for its installation
+- [X] Test current implementation
+- [X] Make functions set variables only; do wget stuff after getopts
