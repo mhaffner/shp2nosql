@@ -9,6 +9,15 @@ is_local=false
 ip_address=localhost
 port=9200
 
+# check if esbulk is installed; if so, use it throughout
+#TODO esbulk still not appearing on path?
+if type esbulk >/dev/null 2>&1
+then
+    esbulk_installed=true
+else
+    esbulk_installed=true
+fi
+
 # with the exception of the documentation, these functions set
 # variables and display warnings only
 
@@ -179,33 +188,35 @@ format-for-es () {
         sed -i '$d' $geojson_es
         sed -i '$d' $geojson_es
 
-        # not necessary if es_bulk is installed
-        sed -i 's/^/{"index" : { "_index" : \"'"$index_name"'\", "_type" : \"'"$doc_type"'\"} }\n/' $geojson_es # insert index info on each line
+        ## steps below not necessary if esbulk is installed
+        if [ $esbulk_installed = "false" ]
+        then
+            # satisfy requirements of the bulk api
+            sed -i 's/^/{"index" : { "_index" : \"'"$index_name"'\", "_type" : \"'"$doc_type"'\"} }\n/' $geojson_es # insert index info on each line
 
-        # add newline to end of file
-        sed -i '$a\' $geojson_es
-        # TODO if errors, insert blank line at the end of the file
+            # add newline to end of file to satisfy bulk api
+            sed -i '$a\' $geojson_es
+        fi
     fi
 }
 
-index-in-es () {
-    echo "Indexing documents into elasticsearch"
-       curl -s XPOST $"ip_address":"$port"/_bulk --data-binary @"$geojson_es"
+insert-func () {
+    if [ $db_type = "es" ]
+    then
+        echo "Indexing documents into elasticsearch"
+        if [ $esbulk_installed = "true" ]
+        then
+            #TODO allow for remote connection
+            esbulk -index $index_name -port $port -type $doc_type $geojson_es -verbose
+        else
+            #TODO currently this does not work; results in 413 error
+            #specifying max doc size in elasticsearch.yml does not help
+            curl -s XPOST https://$"ip_address":"$port"/_bulk --data @"$geojson_es"
+        fi
+    fi
 }
-
-# insert records into appropriate database
-# insert_func() { if [ db_type = "ES" ]
-#                then
-#                    # curl blah blah blah...
-#                elif [ db_type = "MONGO" ]
-#                then
-#                     # curl blah blah blah...
-#                fi
-#              }
-# execute commands
 
 wget_func
 geojson_func
 format-for-es
-index-in-es
-#insert_func
+insert-func
