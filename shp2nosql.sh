@@ -1,10 +1,13 @@
 #!/bin/bash
 
-#TODO navigate to current directory because of realtive path names
-#TODO convert OPTARG's to local (see line 14)
+# get the directory of the package
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+echo $script_dir
 
 # preallocate variables
 is_local=false
+ip_address=localhost
+port=9200
 
 # with the exception of the documentation, these functions set
 # variables and display warnings only
@@ -30,18 +33,18 @@ s_func () { if [ "${OPTARG,,}" = "local" ] # "${OPTARG,,}" converts the argument
 # download data from tiger or use local file
 f_func () { if [ $is_local = true ]
             then
-                shapefile=$OPTARG;
+                # need full path to shapefile for other operations?
+                shapefile=$OPTARG; # arg should not be lowercased if user specifies file (case senstive directories)
                 if [ -a $shapefile ] # check if shapefile exists
                 then
                     echo $shapefile
                 else
                     echo "File does not exist"
-                    # exit if file does not exist?
                     exit 1
                 fi
             else
-                census_prod="$OPTARG"
-                if [ $census_prod != "STATE" ]  && [ $census_prod != "COUNTY" ]
+                census_prod="${OPTARG,,}"
+                if [ $census_prod != "state" ]  && [ $census_prod != "county" ] #TODO add census tracts
                 then
                     echo "Census retrieval must be eiter country or state"
                 fi
@@ -49,35 +52,54 @@ f_func () { if [ $is_local = true ]
           }
 
 # get database type
-d_func () { db_type=$OPTARG
-            if [ $db_type != "ES" ] && [ $db_type != "MONGO" ]
+d_func () { db_type="${OPTARG,,}"
+            if [ $db_type = "es" ]
             then
-                echo "Databse type must be either 'ES' or 'MONGO' "
-            else
+                port=9200
                 echo "Using database type $db_type"
+            elif
+                [ $db_type = "mongo" ]
+            then
+                port=9201
+                echo "Using database type $db_type"
+            else
+                echo "Databse type must be either 'es' or 'mongo' "
             fi
           }
 
 # get index name (Elasticsearch only)
-i_func () { index_name=$OPTARG
+i_func () { index_name=$OPTARG # should not be converted to lowercase; index names can be upper or lower
             echo "Using index $index_name"
           }
 
 # get document type (Elasticsearch only)
-t_func () { doc_type=$OPTARG
-            echo "Using document type $document_type"
+t_func () { doc_type=$OPTARG # should not be converted to lowercase; document types can be upper or lower
+            echo "Using document type $doc_type"
           }
 
 # get database name (MongoDB only)
-D_func () { database_name=$OPTARG
+D_func () { database_name=$OPTARG # should not be converted to lowercase; document types can be upper or lower
             echo "Using database $database_name"
           }
 
 # get state fips code
-S_func () { state_fips=$OPTARG
+S_func () { state_fips=$OPTARG # should be numeric, no need to convert to lower
+            #TODO check if fips is a two digit integer
+            echo "Using state fips code $state_fips"
           }
 
+# get the ip address
+I_func () { ip_address=$OPTARG
+            echo "Using ip address $ip_address"
+          }
 
+# get the port number
+p_func () { port=$OPTARG
+   echo "Using port $port" 
+}
+
+
+# this exectues the above functions if the corresponding argument is given
 options='s:f:d:D:i:t:h'
 while getopts $options option
 do
@@ -88,6 +110,8 @@ do
         D  ) D_func;; # DATABASE name (MongoDB only)
         i  ) i_func;; # INDEX name (Elasticsearch only)
         t  ) t_func;; # document TYPE (Elasticearch only)
+        I  ) I_func;; # ip address
+        p  ) p_func;; # port
         h  ) usage; exit;; # HELP
         \? ) echo "Unknown option: -$OPTARG" >&2; exit 1;;
         :  ) echo "Missing option argument for -$OPTARG" >&2; exit 1;;
@@ -97,42 +121,77 @@ done
 
 # shift $(($OPTIND - 1)) # necessary?
 
-# download data using wget from census?
-
-# insert records into appropriate database
-# insert_func;
-
 # get data from TIGER
 wget_func () { if [ $is_local != true ] #TODO include extra checks
                then
-                   # will need to be changed if user runs this somewhere other than in this dir
-                   cd ./data/shapefiles
-                   if [ "$census_prod" = "COUNTY" ]; then
+                   cd $script_dir/data/shapefiles # navigate to location of package
+                   if [ "$census_prod" = "county" ]
+                   then
                        wget -nc ftp://ftp2.census.gov/geo/tiger/TIGER2016/COUNTY/tl_2016_us_county.zip
-                       if [ ! -e tl_2016_us_county.zip ]
+                       if [ ! -e "tl_2016_us_county.shp" ]
                        then
                           unzip tl_2016_us_county.zip
                        fi
-                       shapefile=tl_2016_us_county.shp
-                   elif [ "$census_prod" = "STATE" ]; then
+                       shapefile=$script_dir/data/shapefiles/tl_2016_us_county.shp
+                   elif [ "$census_prod" = "state" ]
+                   then
                        wget -nc ftp://ftp2.census.gov/geo/tiger/TIGER2016/STATE/tl_2016_us_state.zip
-                       if [ ! -e "tl_2016_us_state.zip" ]
+                       if [ ! -e "tl_2016_us_state.shp" ]
                        then
                           unzip tl_2016_us_state.zip
                        fi
-                       shapefile=tl_2016_us_state.shp
+                       shapefile=$script_dir/data/shapefiles/tl_2016_us_state.shp
                    fi
                fi
              }
 
 # convert shapefile to .geojson
 geojson_func () {
+    cd $script_dir/data/geojson
     if [ -a $shapefile ] # check if shapefile exists
-    target_file=$(basename "$shapefile" .shp).geojson # use basename of file to create .geojson name
-    echo "Converting shapefile to .geojson"
-    ogr2ogr -f GeoJSON $target_file $shapefile #-t_srs http://spatialreference.org/ref/epsg/4326/ # let users specify manually?
+    then
+        geojson=$(basename "$shapefile" .shp).geojson # use basename of file to create .geojson name
+        echo "Converting shapefile to .geojson"
+        ogr2ogr -f GeoJSON $geojson $shapefile
+        #-t_srs http://spatialreference.org/ref/epsg/4326/ # let users specify manually?
+    else
+        echo "Shapefile does not exist"
+    fi
 }
 
+# format geojson for elasticsearch
+format-for-es () {
+    cd $script_dir/data/geojson
+
+    if [ -a $geojson ] # check if geojson exists
+    then
+        # use basename of geojson to create es formatted .geojson name
+        geojson_es=$(basename "$geojson" .geojson)_es.geojson
+        cp $geojson $geojson_es
+
+        ## delete the first three lines
+        sed -i '1,3d' $geojson_es
+
+        ## delete last character if it's a comma; we don't want a json array
+        sed -i 's/,$//' $geojson_es
+
+        # remove the last two lines
+        sed -i '$d' $geojson_es
+        sed -i '$d' $geojson_es
+
+        # not necessary if es_bulk is installed
+        sed -i 's/^/{"index" : { "_index" : \"'"$index_name"'\", "_type" : \"'"$doc_type"'\"} }\n/' $geojson_es # insert index info on each line
+
+        # add newline to end of file
+        sed -i '$a\' $geojson_es
+        # TODO if errors, insert blank line at the end of the file
+    fi
+}
+
+index-in-es () {
+    echo "Indexing documents into elasticsearch"
+       curl -s XPOST $"ip_address":"$port"/_bulk --data-binary @"$geojson_es"
+}
 
 # insert records into appropriate database
 # insert_func() { if [ db_type = "ES" ]
@@ -146,5 +205,7 @@ geojson_func () {
 # execute commands
 
 wget_func
-#geojson_func
+geojson_func
+format-for-es
+index-in-es
 #insert_func
