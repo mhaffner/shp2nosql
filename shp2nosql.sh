@@ -203,27 +203,46 @@ format-for-es () {
 input-mapping () {
 
     ## navigate to location of mapping
-    cd $script_dir/data/mapping
+    cd $script_dir/data/mappings
 
     ## first line of geojson will be different if esbulk is not installed
     if [ $esbulk_installed = "true" ]
     then
-        ## take the one document of the geojson, cat index info to this, make a new file
-        head -1 $geojson_es | cat mapping-template.json - > mapping-sample.json
+        # TODO DELETE THIS LINE BEFORE PUTTING INTO ACTUAL SCRIPT??
+        # curl -XDELETE localhost:9200/"$index_name"
+        head -1 $script_dir/data/geojson/$geojson_es | cat mapping-template.json - > index-sample.json
 
-        curl -s XPOST https://$"ip_address":"$port"/_bulk --data @mapping-sample.json
+        curl -s -XPOST "$ip_address":"$port"/_bulk --data-binary @index-sample.json
 
         ## get mapping with curl; it will not be pretty
+        curl -XGET "$ip_address":"$port"/mapping_sample__/_mapping > mapping-sample.json
+        ## make mapping pretty
+        python -m json.tool mapping-sample.json > mapping-pretty.json
 
         ## delete the index; we will make it cooler (e.g. have a spatial index)
+        curl -XDELETE "$ip_address":"$port"/mapping_sample__
 
-        ## make mapping pretty
-        python -m json.tool mapping-not-pretty.json > mapping-pretty.json
-
-        ## do the magic (see README on "for mapping")
+        ## delete third and fourth lines
+        sed -i '3,4d' mapping-pretty.json
+        ## insert proper info for geo_index
+        sed -i '/geometry": {/a "type"\: "geo_shape"\n},' mapping-pretty.json
+        ## delete lines 7-21
+        sed -i '7,21d' mapping-pretty.json
+        ## delete last two lines
+        sed -i '$d' mapping-pretty.json
+        sed -i '$d' mapping-pretty.json
+        ## replace psuedo index name with actual
+        sed -i 's/mapping_sample__/'"$doc_type"'/' mapping-pretty.json
+        ## create trivial index (with no documents)
+        curl -XPUT "$ip_address":"$port"/"$index_name"
+        ## input mapping
+        curl -XPUT "$ip_address":"$port"/"$index_name"/_mapping/"$doc_type" --data @mapping-pretty.json
+    fi
 }
 
 insert-func () {
+    cd $script_dir/data/geojson
+
     if [ $db_type = "es" ]
     then
         echo "Indexing documents into elasticsearch"
@@ -242,4 +261,7 @@ insert-func () {
 wget_func
 geojson_func
 format-for-es
+input-mapping
 insert-func
+
+echo "Complete"
