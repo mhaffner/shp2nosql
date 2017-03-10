@@ -1,1 +1,1 @@
-'{"index" : { "_index" : "__mapping_sample__", "_type" : "__mapping_sample__"} }'
+{"index" : { "_index" : "mapping_sample__", "_type" : "mapping_sample__"} }
