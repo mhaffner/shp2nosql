@@ -7,6 +7,7 @@ shapefiles) need not be mastered for each individual database.
 ** Dependencies
 *** gdal
 *** ogr2ogr
+*** Python
 ** Installation
 git clone https://gitbhub.com/mhaffner/shp2nosql
 * How to use 
@@ -54,7 +55,6 @@ s_func
 * Todo
 - [ ] Make wget command more robust (use postgis book example)
 - [ ] Check software license of Stack Overflow material
-- [ ] Use esbulk to insert records if installed?
 - [ ] Make install script
   - [ ] add shp2nosql to path
 - [ ] Source other functions in?
@@ -64,6 +64,19 @@ s_func
 - [ ] Use something other than wget?
   - [ ] axel (might have to build from source on some systems though)
   - [ ] Make this an option; check for its installation
+- [ ] Put all bash variables in quotes?
+- [ ] Use dashes for all functions, underscores for all variables
+- [ ] How to handle deleting index before inputting new?? If users are using
+  census data, they probably want to create a new index and delete the old (but
+  it is possible that they may not want to); They may want to just add to an
+  existing index
+- [ ] How to handle alternative SRS's?
+- [ ] Need to only replace first instance with sed in input-mapping func?? ->
+  working fine for now
+- [X] Adjust curl statement
+- [X] Get rid of quotes around first line of mapping-template (cat may be
+  producing this) -> nope, I had single quotes around the text
+- [X] Use esbulk to insert records if installed?
 - [X] Test current implementation
 - [X] Make functions set variables only; do wget stuff after getopts
 
