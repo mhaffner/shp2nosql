@@ -200,6 +200,29 @@ format-for-es () {
     fi
 }
 
+input-mapping () {
+
+    ## navigate to location of mapping
+    cd $script_dir/data/mapping
+
+    ## first line of geojson will be different if esbulk is not installed
+    if [ $esbulk_installed = "true" ]
+    then
+        ## take the one document of the geojson, cat index info to this, make a new file
+        head -1 $geojson_es | cat mapping-template.json - > mapping-sample.json
+
+        curl -s XPOST https://$"ip_address":"$port"/_bulk --data @mapping-sample.json
+
+        ## get mapping with curl; it will not be pretty
+
+        ## delete the index; we will make it cooler (e.g. have a spatial index)
+
+        ## make mapping pretty
+        python -m json.tool mapping-not-pretty.json > mapping-pretty.json
+
+        ## do the magic (see README on "for mapping")
+}
+
 insert-func () {
     if [ $db_type = "es" ]
     then

@@ -66,3 +66,12 @@ s_func
   - [ ] Make this an option; check for its installation
 - [X] Test current implementation
 - [X] Make functions set variables only; do wget stuff after getopts
+
+* For mapping
+- delete 3rd and 4th lines
+- after "geometry: {" (now line 4), need to add
+  "type": "geo_shape" 
+},
+- delete what are now lines 7-21
+- delete last two lines
+- replace item on line 2 with appropriate index name

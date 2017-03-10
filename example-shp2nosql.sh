@@ -1,1 +1,1 @@
-bash shp2nosql.sh -f state -i test -d es -t tweet
+bash shp2nosql.sh -f state -i sample -d es -t tweet
