@@ -217,6 +217,7 @@ input-mapping () {
         ## get mapping with curl; it will not be pretty
         curl -XGET "$ip_address":"$port"/mapping_sample__/_mapping > mapping-sample.json
         ## make mapping pretty
+        ## TODO can do this in one step above with correct command
         python -m json.tool mapping-sample.json > mapping-pretty.json
 
         ## delete the index; we will make it cooler (e.g. have a spatial index)
