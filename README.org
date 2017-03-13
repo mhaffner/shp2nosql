@@ -59,6 +59,22 @@ s_func
 
 #+END_SRC
 
+If you received a 413 error when indexing documents into Elasticsearch, be sure
+your machine has enough available memory to carry out a bulk index. Adjust
+http.maxRequestLength in /etc/elasticsearch/elasticsearch.yml if necessary.
+Alternatively, use [[github.com/miku/esbulk][esbulk]] (must be installed and found in your path) with the -e
+flag
+
+If the script completes successfully but no documents have been indexed,
+consider deleting the index by using the -R flag (or manually using curl
+-XDELETE server:port/index).
+
+If some documents fail to index, it could be due to a topology exception.
+
+GeoJSON standard states everything must be EPSG:4326
+
+If you receive an error with the esbulk utility, try going without it
+
 * Todo
 - [ ] Make wget command more robust (use postgis book example)
 - [ ] Check software license of Stack Overflow material
@@ -83,6 +99,13 @@ s_func
 - [ ] Make download available for census blocks and block groups?
 - [ ] Suppress elasticsearch output while in scripts
 - [ ] Allow user to specify whether or not they want to use esbulk
+- [ ] Make error appear if tract is specified with no fips code
+- [ ] Try new shapefile (OK congressional districts may have malformed geometry)
+- [ ] Verify .geojson in lint or GIS
+- [ ] Allow users to specify their own geojson instead of shapefile
+- [X] Need to delete first 4 lines instead of first 3 now that custom SRS has
+  been specified in ogr2ogr
+- [X] Make all SRS outputs EPSG:4326 (this is standard for GeoJSON)
 - [X] Make is_local an option with no argument required
 - [X] Add option for IP address and port
 - [X] Adjust curl statement
