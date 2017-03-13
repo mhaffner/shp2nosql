@@ -1,16 +1,23 @@
 * shp2nosql
-This package is a set of command line utilities for working with
-geospatial data and NoSQL databases such as Elasticsearch and MongoDB.
-It is designed to be fairly standardized with reasonable defaults so
-that the intricacies of inserting/indexing geospatial data (mainly
-shapefiles) need not be mastered for each individual database.
-** Dependencies
+This package is a set of command line utilities for working with geospatial data
+and NoSQL databases such as Elasticsearch and MongoDB. It is designed to be
+fairly standardized with reasonable defaults so that the intricacies of
+inserting/indexing geospatial data (mainly shapefiles) need not be mastered for
+each individual database.
+** Required dependencies
 *** gdal
 *** ogr2ogr
 *** Python
+*** Database (one of the following)
+**** Elasticsearch
+**** MongoDB
+
+** Optional dependencies
+*** [[https://github.com/miku/esbulk][esbulk]] (will be used by default if installed)
 ** Installation
 git clone https://gitbhub.com/mhaffner/shp2nosql
 * How to use 
+- Enclose arguments in quotes
 ** Elasticsearch
 *** Minimum arguments
 - Data (-f)
@@ -18,7 +25,7 @@ git clone https://gitbhub.com/mhaffner/shp2nosql
 - Index name (-i)
 - Document type (-t)
 *** Optional arguments
-- Data source (-s) (you can specify 'local')
+- Local data source (-l)
 - State fips code for census tracts (-S)
 - IP address (-I)
 - Port (-p)
@@ -60,7 +67,6 @@ s_func
 - [ ] Source other functions in?
 - [ ] Add script location to path
   - [ ] As a part of installation?
-- [ ] Add option for IP address and port
 - [ ] Use something other than wget?
   - [ ] axel (might have to build from source on some systems though)
   - [ ] Make this an option; check for its installation
@@ -72,7 +78,13 @@ s_func
   existing index
 - [ ] How to handle alternative SRS's?
 - [ ] Need to only replace first instance with sed in input-mapping func?? ->
-  working fine for now
+- [ ] Make all errors go to stderr and exit
+- [ ] Quote all variables
+- [ ] Make download available for census blocks and block groups?
+- [ ] Suppress elasticsearch output while in scripts
+- [ ] Allow user to specify whether or not they want to use esbulk
+- [X] Make is_local an option with no argument required
+- [X] Add option for IP address and port
 - [X] Adjust curl statement
 - [X] Get rid of quotes around first line of mapping-template (cat may be
   producing this) -> nope, I had single quotes around the text
