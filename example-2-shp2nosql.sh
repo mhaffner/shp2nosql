@@ -1,1 +1,1 @@
-bash shp2nosql.sh -R -d es -f tract -S 40 -i ok_tracts -t tract
+bash shp2nosql.sh -R -e -d es -f county -i us_counties -t county
