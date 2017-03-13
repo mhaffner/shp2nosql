@@ -2,41 +2,31 @@
 
 # get the directory of the package
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-echo $script_dir
 
 # preallocate variables
 is_local=false
 ip_address=localhost
 port=9200
+remove=false
 
 # check if esbulk is installed; if so, use it throughout
-#TODO esbulk still not appearing on path?
+# TODO don't use this by default; but include this check in -e option
 if type esbulk >/dev/null 2>&1
 then
-    esbulk_installed=true
+    #TODO fix these back from testing
+    esbulk_installed=false
 else
-    esbulk_installed=true
+    esbulk_installed=false
 fi
 
 # with the exception of the documentation, these functions set
 # variables and display warnings only
 
-usage () {
-           cat help.txt
+h_func () { cat help.txt
          }
 
-
 # check if shapefile is local or should be downloaded
-s_func () { if [ "${OPTARG,,}" = "local" ] # "${OPTARG,,}" converts the argument to lowercase via bash string manipulation
-            then
-                is_local=true
-                echo "Using local file."
-                echo "${OPTARG,,}"
-            else
-                is_local=false
-                echo "Getting data from US Census."
-                echo "${OPTARG,,}"
-            fi
+l_func () { is_local=true
           }
 
 # download data from tiger or use local file
@@ -52,10 +42,14 @@ f_func () { if [ $is_local = true ]
                     exit 1
                 fi
             else
+                # "${OPTARG,,}" converts the argument to lowercase via bash string manipulation
                 census_prod="${OPTARG,,}"
-                if [ $census_prod != "state" ]  && [ $census_prod != "county" ] #TODO add census tracts
+                if [ $census_prod != "state" ]  && \
+                       [ $census_prod != "county" ] && \
+                       [ $census_prod != "tract" ]
                 then
-                    echo "Census retrieval must be eiter country or state"
+                    echo "Census retrieval must be either state, county, or tract"
+                    exit 1
                 fi
             fi
           }
@@ -91,11 +85,6 @@ D_func () { database_name=$OPTARG # should not be converted to lowercase; docume
             echo "Using database $database_name"
           }
 
-# get state fips code
-S_func () { state_fips=$OPTARG # should be numeric, no need to convert to lower
-            #TODO check if fips is a two digit integer
-            echo "Using state fips code $state_fips"
-          }
 
 # get the ip address
 I_func () { ip_address=$OPTARG
@@ -104,24 +93,38 @@ I_func () { ip_address=$OPTARG
 
 # get the port number
 p_func () { port=$OPTARG
-   echo "Using port $port" 
-}
+            echo "Using port $port" 
+          }
+
+# get state fips code
+S_func () { state_fips=$OPTARG # should be numeric, no need to convert to lower
+            #TODO check if fips is a two digit integer
+            #TODO if not two digit, convert to two digit (e.g. 2 > 02)
+            echo "Using state fips code $state_fips"
+          }
+
+# get user's option to remove the database/index before re-inserting/indexing
+R_func () { remove=true
+          }
+
 
 
 # this exectues the above functions if the corresponding argument is given
-options='s:f:d:D:i:t:h'
+options='hlf:d:D:i:t:I:p:S:R'
 while getopts $options option
 do
     case $option in
-        s  ) s_func;; # SOURCE
+        h  ) h_func; exit;; # HELP/documentation
+        l  ) l_func;; # data source is LOCAL? (no arugment needed)
         f  ) f_func;; # FILE (if local), file-to-get-from-census (if not local)
         d  ) d_func;; # DATABASE type
         D  ) D_func;; # DATABASE name (MongoDB only)
         i  ) i_func;; # INDEX name (Elasticsearch only)
         t  ) t_func;; # document TYPE (Elasticearch only)
-        I  ) I_func;; # ip address
-        p  ) p_func;; # port
-        h  ) usage; exit;; # HELP
+        I  ) I_func;; # IP address
+        p  ) p_func;; # PORT
+        S  ) S_func;; # STATE fips code (two digit)
+        R  ) R_func;; # REMOVE database or index before reinserting records/documents
         \? ) echo "Unknown option: -$OPTARG" >&2; exit 1;;
         :  ) echo "Missing option argument for -$OPTARG" >&2; exit 1;;
         *  ) echo "Unimplemented option: -$OPTARG" >&2; exit 1;;
@@ -131,7 +134,7 @@ done
 # shift $(($OPTIND - 1)) # necessary?
 
 # get data from TIGER
-wget_func () { if [ $is_local != true ] #TODO include extra checks
+wget_census_data () { if [ $is_local != true ] #TODO include extra checks
                then
                    cd $script_dir/data/shapefiles # navigate to location of package
                    if [ "$census_prod" = "county" ]
@@ -150,18 +153,27 @@ wget_func () { if [ $is_local != true ] #TODO include extra checks
                           unzip tl_2016_us_state.zip
                        fi
                        shapefile=$script_dir/data/shapefiles/tl_2016_us_state.shp
+                   elif [ "$census_prod" = "tract" ]
+                   then
+                       wget -nc ftp://ftp2.census.gov/geo/tiger/TIGER2016/TRACT/tl_2016_"$state_fips"_tract.zip
+                       if [ ! -e "tl_2016_${state_fips}_tract.shp" ]
+                       then
+                           unzip tl_2016_"$state_fips"_tract.zip
+                       fi
+                       shapefile=$script_dir/data/shapefiles/tl_2016_"$state_fips"_tract.shp
                    fi
                fi
              }
 
 # convert shapefile to .geojson
-geojson_func () {
+geojson_conversion () {
     cd $script_dir/data/geojson
     if [ -a $shapefile ] # check if shapefile exists
     then
         geojson=$(basename "$shapefile" .shp).geojson # use basename of file to create .geojson name
         echo "Converting shapefile to .geojson"
         ogr2ogr -f GeoJSON $geojson $shapefile
+        #TODO let users specify srs manually via epsg code
         #-t_srs http://spatialreference.org/ref/epsg/4326/ # let users specify manually?
     else
         echo "Shapefile does not exist"
@@ -169,7 +181,7 @@ geojson_func () {
 }
 
 # format geojson for elasticsearch
-format-for-es () {
+format_for_es () {
     cd $script_dir/data/geojson
 
     if [ -a $geojson ] # check if geojson exists
@@ -192,7 +204,7 @@ format-for-es () {
         if [ $esbulk_installed = "false" ]
         then
             # satisfy requirements of the bulk api
-            sed -i 's/^/{"index" : { "_index" : \"'"$index_name"'\", "_type" : \"'"$doc_type"'\"} }\n/' $geojson_es # insert index info on each line
+            sed -i 's/^/{ "index" : { "_index" : \"'"$index_name"'\", "_type" : \"'"$doc_type"'\"} }\n/' $geojson_es # insert index info on each line
 
             # add newline to end of file to satisfy bulk api
             sed -i '$a\' $geojson_es
@@ -200,7 +212,16 @@ format-for-es () {
     fi
 }
 
-input-mapping () {
+remove_database () {
+    if [ $remove = "true" ] && [ $db_type = "es" ]
+    then
+        # TODO if index exists.... how to best get curl output from es and process?
+        echo "Removing index $index_name"
+        curl -XDELETE "$ip_address":"$port"/"$index_name"
+    fi
+}
+
+input_mapping () {
 
     ## navigate to location of mapping
     cd $script_dir/data/mappings
@@ -208,8 +229,6 @@ input-mapping () {
     ## first line of geojson will be different if esbulk is not installed
     if [ $esbulk_installed = "true" ]
     then
-        # TODO DELETE THIS LINE BEFORE PUTTING INTO ACTUAL SCRIPT??
-        # curl -XDELETE localhost:9200/"$index_name"
         head -1 $script_dir/data/geojson/$geojson_es | cat mapping-template.json - > index-sample.json
 
         curl -s -XPOST "$ip_address":"$port"/_bulk --data-binary @index-sample.json
@@ -241,7 +260,7 @@ input-mapping () {
     fi
 }
 
-insert-func () {
+insert_records () {
     cd $script_dir/data/geojson
 
     if [ $db_type = "es" ]
@@ -254,15 +273,17 @@ insert-func () {
         else
             #TODO currently this does not work; results in 413 error
             #specifying max doc size in elasticsearch.yml does not help
-            curl -s XPOST https://$"ip_address":"$port"/_bulk --data @"$geojson_es"
+            curl -s XPOST "$ip_address":"$port"/_bulk --data-binary @"$geojson_es"
         fi
     fi
 }
 
-wget_func
-geojson_func
-format-for-es
-input-mapping
-insert-func
+# how to handle these??? execute all or use if/else -> I think handle if/else in these functions (above)
+wget_census_data
+geojson_conversion
+remove_database
+format_for_es
+input_mapping
+insert_records
 
 echo "Complete"
