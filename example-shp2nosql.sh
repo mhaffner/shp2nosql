@@ -1,1 +1,1 @@
-bash shp2nosql.sh -d es -l -f "/home/matt/estatal.shp" -i estatal -t polygon 
+bash shp2nosql.sh -d mongodb -f state -D usa -c states
