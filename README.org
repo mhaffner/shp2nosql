@@ -31,10 +31,10 @@ git clone https://gitbhub.com/mhaffner/shp2nosql
 - Port (-p)
 ** MongoDB
 *** Minimum arguments 
-- Data source (-s)
-- Data (-f)
 - Database type (-d)
-- Database name (-D?)
+- Data (-f)
+- Database name (-D)
+- Collection name (-c)
 *** Optional arguments
 - State fips code for census tracts (-S)
 ** Example
@@ -47,6 +47,9 @@ bash shp2nosql.sh \
 -d es \
 -i twitter \
 -t tweet 
+
+# mongodb example
+shp2nosql -d mongodb -f state -D usa -c states
 #+END_SRC
 bash 
 * Random notes
@@ -71,9 +74,25 @@ consider deleting the index by using the -R flag (or manually using curl
 
 If some documents fail to index, it could be due to a topology exception.
 
-GeoJSON standard states everything must be EPSG:4326
+GeoJSON standard states everything must be EPSG:4326, so this is the only SRS
+option. 
 
-If you receive an error with the esbulk utility, try going without it
+If you receive an error with the esbulk utility, try going without it.
+
+If geometry is malformed, esbulk may not return an informative error.
+
+Be sure to start the appropriate service before using the tool. For example, to
+start Elasticsearch on Arch Linux use
+
+#+BEGIN_SRC shell
+systemctl start elasticsearch
+#+END_SRC
+
+or Elasticsearch on Ubuntu
+
+#+BEGIN_SRC shell
+service elasticsearch start
+#+END_SRC
 
 * Todo
 - [ ] Make wget command more robust (use postgis book example)
@@ -87,22 +106,25 @@ If you receive an error with the esbulk utility, try going without it
   - [ ] axel (might have to build from source on some systems though)
   - [ ] Make this an option; check for its installation
 - [ ] Put all bash variables in quotes?
-- [ ] Use dashes for all functions, underscores for all variables
 - [ ] How to handle deleting index before inputting new?? If users are using
   census data, they probably want to create a new index and delete the old (but
   it is possible that they may not want to); They may want to just add to an
   existing index
-- [ ] How to handle alternative SRS's?
 - [ ] Need to only replace first instance with sed in input-mapping func?? ->
 - [ ] Make all errors go to stderr and exit
 - [ ] Quote all variables
 - [ ] Make download available for census blocks and block groups?
 - [ ] Suppress elasticsearch output while in scripts
-- [ ] Allow user to specify whether or not they want to use esbulk
 - [ ] Make error appear if tract is specified with no fips code
-- [ ] Try new shapefile (OK congressional districts may have malformed geometry)
-- [ ] Verify .geojson in lint or GIS
-- [ ] Allow users to specify their own geojson instead of shapefile
+- [ ] Allow users to specify their own geojson instead of shapefile -> call this
+  geojson2nosql 
+- [ ] Create option for spatial index on mongodb data after indexing?
+- [ ] Check if service is running and throw an error to user if it is not
+- [X] Allow user to specify whether or not they want to use esbulk
+- [X] Use dashes for all functions, underscores for all variables
+- [X] Try new shapefile (OK congressional districts may have malformed geometry)
+- [X] Verify .geojson in lint or GIS
+- [X] How to handle alternative SRS's? -> EPSG:4236 is standard for GeoJSON
 - [X] Need to delete first 4 lines instead of first 3 now that custom SRS has
   been specified in ogr2ogr
 - [X] Make all SRS outputs EPSG:4326 (this is standard for GeoJSON)
