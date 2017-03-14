@@ -52,19 +52,20 @@ f_func () {
 # get database type
 d_func () {
     db_type="${OPTARG,,}"
-    if [ $db_type = "es" ]
+    if [ $db_type = "elasticsearch" ]
     then
         # TODO what if this argument comes after the port argument?
         port=9200
         echo "Using database type $db_type"
     elif
-        [ $db_type = "mongo" ]
+        [ $db_type = "mongodb" ]
     then
         # TODO use appropriate default mongodb port
+        # not necessary when local?
         port=9201
         echo "Using database type $db_type"
     else
-        echo "Databse type must be either 'es' or 'mongo'" >&2
+        echo "Databse type must be either 'elasticsearch' or 'mongodb'" >&2
         exit 1
     fi
 }
@@ -82,20 +83,28 @@ t_func () {
 }
 
 # get database name (MongoDB only)
-D_func () { database_name=$OPTARG # should not be converted to lowercase; document types can be upper or lower
-            echo "Using database $database_name"
-          }
+D_func () {
+    db_name=$OPTARG # should not be converted to lowercase; document types can be upper or lower
+    echo "Using database $db_name"
+}
 
+# get collection name (MongoDB only)
+c_func () {
+    collection_name=$OPTARG
+    echo "Using collection $collection_name"
+}
 
 # get the ip address
-I_func () { ip_address=$OPTARG
-            echo "Using ip address $ip_address"
+I_func () {
+    ip_address=$OPTARG
+    echo "Using ip address $ip_address"
           }
 
 # get the port number
-p_func () { port=$OPTARG
-            echo "Using port $port" 
-          }
+p_func () {
+    port=$OPTARG
+    echo "Using port $port" 
+}
 
 # get state fips code
 S_func () {
@@ -103,15 +112,15 @@ S_func () {
     #TODO check if fips is a two digit integer
     #TODO if not two digit, convert to two digit (e.g. 2 > 02)
     echo "Using state fips code $state_fips"
-          }
+}
 
 # get user's option to remove the database/index before re-inserting/indexing
 R_func () {
     remove=true
-          }
+}
 
+# check if esbulk is installed; if so, use it throughout
 e_func () {
-    # check if esbulk is installed; if so, use it throughout
     if type esbulk >/dev/null 2>&1
     then
         use_esbulk=true
@@ -124,15 +133,17 @@ e_func () {
 
 
 # this exectues the above functions if the corresponding argument is given
-options='hlf:d:D:i:t:I:p:S:Re'
+# put a leading colon at the beginngin to turn on silent error processing
+options='hlf:d:D:c:i:t:I:p:S:Re'
 while getopts $options option
 do
     case $option in
         h  ) h_func; exit;; # HELP/documentation
-        l  ) l_func;; # data source is LOCAL? (no arugment needed)
-        f  ) f_func;; # FILE (if local), file-to-get-from-census (if not local)
+        l  ) l_func;; # data source is LOCAL (no arugment needed)
+        f  ) f_func;; # FILE (if local), FILE to get from census (if not local)
         d  ) d_func;; # DATABASE type
         D  ) D_func;; # DATABASE name (MongoDB only)
+        c  ) c_func;; # COLLECTION name (MongoDB only)
         i  ) i_func;; # INDEX name (Elasticsearch only)
         t  ) t_func;; # document TYPE (Elasticearch only)
         I  ) I_func;; # IP address
@@ -141,12 +152,10 @@ do
         R  ) R_func;; # REMOVE database or index before reinserting records/documents
         e  ) e_func;; # use ESBULK (Elasticsearch only)
         \? ) echo "Unknown option: -$OPTARG" >&2; exit 1;;
-        :  ) echo "Missing option argument for -$OPTARG" >&2; exit 1;;
-        *  ) echo "Unimplemented option: -$OPTARG" >&2; exit 1;;
+        :  ) echo "Arugment required for option -$OPTARG" >&2; exit 1;;
+        *  ) echo "Unused option: -$OPTARG" >&2; exit 1;;
     esac
 done
-
-# shift $(($OPTIND - 1)) # necessary?
 
 # get data from TIGER
 wget_census_data () {
@@ -171,10 +180,16 @@ wget_census_data () {
             shapefile=$script_dir/data/shapefiles/tl_2016_us_state.shp
         elif [ "$census_prod" = "tract" ]
         then
-            wget -nc ftp://ftp2.census.gov/geo/tiger/TIGER2016/TRACT/tl_2016_"$state_fips"_tract.zip
-            if [ ! -e "tl_2016_${state_fips}_tract.shp" ]
+            if [ -z "$state_fips" ]
             then
-                unzip tl_2016_"$state_fips"_tract.zip
+                echo "Two digit state fips code must be specified with the -S option" >&2
+                exit 1
+            else
+                wget -nc ftp://ftp2.census.gov/geo/tiger/TIGER2016/TRACT/tl_2016_"$state_fips"_tract.zip
+                if [ ! -e "tl_2016_${state_fips}_tract.shp" ]
+                then
+                    unzip tl_2016_"$state_fips"_tract.zip
+                fi
             fi
             shapefile=$script_dir/data/shapefiles/tl_2016_"$state_fips"_tract.shp
         fi
@@ -188,41 +203,42 @@ geojson_conversion () {
     then
         geojson=$(basename "$shapefile" .shp).geojson # use basename of file to create .geojson name
         echo "Converting shapefile to .geojson"
-        ogr2ogr -f GeoJSON $geojson $shapefile -t_srs http://spatialreference.org/ref/epsg/4326/ # let users specify manually?
+        ogr2ogr -f GeoJSON $geojson $shapefile -t_srs EPSG:4326
+        #http://spatialreference.org/ref/epsg/4326/ not working anymore?
     else
         echo "Shapefile does not exist"
     fi
 }
 
-# format geojson for elasticsearch
-format_for_es () {
+# format geojson for elasticsearch and mongodb
+format_geojson () {
     cd $script_dir/data/geojson
 
     if [ -a $geojson ] # check if geojson exists
     then
         # use basename of geojson to create es formatted .geojson name
-        geojson_es=$(basename "$geojson" .geojson)_es.geojson
+        geojson_fmt=$(basename "$geojson" .geojson)_fmt.geojson
         # TODO remove this and just use one file?
-        cp $geojson $geojson_es
+        cp $geojson $geojson_fmt
 
         ## delete the first four lines
-        sed -i '1,4d' $geojson_es
+        sed -i '1,4d' $geojson_fmt
 
         ## delete last character if it's a comma; we don't want a json array
-        sed -i 's/,$//' $geojson_es
+        sed -i 's/,$//' $geojson_fmt
 
         # remove the last two lines
-        sed -i '$d' $geojson_es
-        sed -i '$d' $geojson_es
-        
-        ## steps below not necessary if esbulk is installed
-        if [ $use_esbulk = "false" ]
+        sed -i '$d' $geojson_fmt
+        sed -i '$d' $geojson_fmt
+
+        ## steps below not necessary if using mongodb or esbulk is installed
+        if [ $use_esbulk = "false" ] && [ $db_type = "elasticsearch" ]
         then
             # satisfy requirements of the bulk api
-            sed -i 's/^/{ "index" : { "_index" : \"'"$index_name"'\", "_type" : \"'"$doc_type"'\" } }\n/' $geojson_es # insert index info on each line
+            sed -i 's/^/{ "index" : { "_index" : \"'"$index_name"'\", "_type" : \"'"$doc_type"'\" } }\n/' $geojson_fmt # insert index info on each line
 
             # add newline to end of file to satisfy bulk api
-            sed -i '$a\' $geojson_es
+            sed -i '$a\' $geojson_fmt
         fi
     else
         echo "Geojson conversion for elasticsearch failed"
@@ -230,96 +246,106 @@ format_for_es () {
 }
 
 remove_database () {
-    if [ $remove = "true" ] && [ $db_type = "es" ]
+    if [ $remove = "true" ] && [ $db_type = "elasticsearch" ]
     then
         # TODO if index exists.... how to best get curl output from es and process?
         echo "Removing index $index_name"
         curl -XDELETE "$ip_address":"$port"/"$index_name"
+    elif [ $remove = "true" ] && [ $db_type = "mongodb" ]
+    then
+        #TODO
+        echo "Do something"
     fi
 }
 
 input_mapping () {
-
-    ## navigate to location of mapping
-    cd $script_dir/data/mappings
-
-    ## first line of geojson will be different if esbulk is not installed
-    if [ $use_esbulk = "true" ]
+    if [ $db_type = "elasticsearch" ]
     then
-        # get first line of geojson
-        head -1 $script_dir/data/geojson/$geojson_es | cat mapping-template.json - > index-sample.json
-    else
-        # get second line of geojson (first line contains request)
-        sed '2q;d' $script_dir/data/geojson/$geojson_es | cat mapping-template.json - > index-sample.json
+        ## navigate to location of mapping
+        cd $script_dir/data/mappings
+
+        ## first line of geojson will be different if esbulk is not installed
+        if [ $use_esbulk = "true" ]
+        then
+            # get first line of geojson
+            head -1 $script_dir/data/geojson/$geojson_fmt | cat mapping-template.json - > index-sample.json
+        else
+            # get second line of geojson (first line contains request)
+            sed '2q;d' $script_dir/data/geojson/$geojson_fmt | cat mapping-template.json - > index-sample.json
+        fi
+
+        curl -s -XPOST "$ip_address":"$port"/_bulk --data-binary @index-sample.json
+
+        ## get mapping with curl; it will not be pretty
+        curl -XGET "$ip_address":"$port"/mapping_sample__/_mapping > mapping-sample.json
+        ## make mapping pretty
+        ## TODO can do this in one step above with correct command
+        python -m json.tool mapping-sample.json > mapping-pretty.json
+
+        ## delete the index; we will make it cooler (e.g. have a spatial index)
+        curl -XDELETE "$ip_address":"$port"/mapping_sample__
+
+        ## delete third and fourth lines
+        sed -i '3,4d' mapping-pretty.json
+        ## insert proper info for geo_index
+        sed -i '/geometry": {/a "type"\: "geo_shape"\n},' mapping-pretty.json
+        ## delete lines 7-21
+        sed -i '7,21d' mapping-pretty.json
+        ## delete last two lines
+        sed -i '$d' mapping-pretty.json
+        sed -i '$d' mapping-pretty.json
+        ## replace psuedo index name with actual
+        sed -i 's/mapping_sample__/'"$doc_type"'/' mapping-pretty.json
+        ## create trivial index (with no documents)
+        curl -XPUT "$ip_address":"$port"/"$index_name"
+        ## input mapping
+        curl -XPUT "$ip_address":"$port"/"$index_name"/_mapping/"$doc_type" --data @mapping-pretty.json
     fi
-
-    curl -s -XPOST "$ip_address":"$port"/_bulk --data-binary @index-sample.json
-
-    ## get mapping with curl; it will not be pretty
-    curl -XGET "$ip_address":"$port"/mapping_sample__/_mapping > mapping-sample.json
-    ## make mapping pretty
-    ## TODO can do this in one step above with correct command
-    python -m json.tool mapping-sample.json > mapping-pretty.json
-
-    ## delete the index; we will make it cooler (e.g. have a spatial index)
-    curl -XDELETE "$ip_address":"$port"/mapping_sample__
-
-    ## delete third and fourth lines
-    sed -i '3,4d' mapping-pretty.json
-    ## insert proper info for geo_index
-    sed -i '/geometry": {/a "type"\: "geo_shape"\n},' mapping-pretty.json
-    ## delete lines 7-21
-    sed -i '7,21d' mapping-pretty.json
-    ## delete last two lines
-    sed -i '$d' mapping-pretty.json
-    sed -i '$d' mapping-pretty.json
-    ## replace psuedo index name with actual
-    sed -i 's/mapping_sample__/'"$doc_type"'/' mapping-pretty.json
-    ## create trivial index (with no documents)
-    curl -XPUT "$ip_address":"$port"/"$index_name"
-    ## input mapping
-    curl -XPUT "$ip_address":"$port"/"$index_name"/_mapping/"$doc_type" --data @mapping-pretty.json
 }
 
 insert_records () {
     cd $script_dir/data/geojson
 
-    if [ $db_type = "es" ]
+    if [ $db_type = "elasticsearch" ]
     then
         echo "Indexing documents into elasticsearch"
         if [ $use_esbulk = "true" ]
         then
             #TODO allow for remote connection
-            esbulk -index $index_name -port $port -type $doc_type $geojson_es -verbose
+            esbulk -index $index_name -port $port -type $doc_type $geojson_fmt -verbose
         else
             #TODO currently this does not work; results in 413 error
             #specifying max doc size in elasticsearch.yml does not help
-            numlines=$(wc -l < "$geojson_es")
+            numlines=$(wc -l < "$geojson_fmt")
+            # split files up if there are too many (3k line limit in Elasticsearch?)
             if [ $numlines -gt 2000 ]
             then
-                # TODO if esbulk is not used, will need to break into chunks of 1-2k records manually
                 echo "Too many records in one file; splitting into chunks"
                 # put the split files in a different directory
                 cd split_dir
-                split -l 2000 ../"$geojson_es" split_file # split_file will be prefix
+                split -l 2000 ../"$geojson_fmt" split_file # split_file will be prefix
                 for i in split_file*
                 do
                     echo "Indexing chunk $i"
                     curl -s XPOST "$ip_address":"$port"/_bulk --data-binary @"$i"
                 done
-#                rm split_file* # cleanup
+                rm split_file* # cleanup
             else
-                curl -s XPOST "$ip_address":"$port"/_bulk --data-binary @"$geojson_es"
+                curl -s XPOST "$ip_address":"$port"/_bulk --data-binary @"$geojson_fmt"
             fi
         fi
+    elif [ $db_type = "mongodb" ]
+    then
+        # TODO finish this
+        echo "Inserting records into MongoDB"
+        mongoimport --db $db_name --collection $collection_name --file $geojson_fmt
     fi
 }
 
-# how to handle these??? execute all or use if/else -> I think handle if/else in these functions (above)
 wget_census_data
 geojson_conversion
 remove_database
-format_for_es
+format_geojson
 input_mapping
 insert_records
 
