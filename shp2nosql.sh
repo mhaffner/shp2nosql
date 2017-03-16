@@ -13,25 +13,25 @@ use_esbulk=false
 # with the exception of the documentation, these functions set
 # variables and display warnings only
 
-h_func () {
+h_opt () {
     cat help.txt
 }
 
 # check if shapefile is local or should be downloaded
-l_func () {
+l_opt () {
     is_local=true
 }
 
 # download data from tiger or use local file
-f_func () {
+f_opt () {
     # TODO what if this argument comes before -l ? (then is_local will be false)
-    if [ $is_local = true ]
+    if [ "$is_local" = true ]
     then
         # need full path to shapefile for other operations?
-        shapefile=$OPTARG; # arg should not be lowercased if user specifies file (case senstive directories)
-        if [ -a $shapefile ] # check if shapefile exists
+        shapefile="$OPTARG"; # arg should not be lowercased if user specifies file (case senstive directories)
+        if [ -a "$shapefile" ] # check if shapefile exists
         then
-            echo $shapefile
+            echo "$shapefile"
         else
             echo "File does not exist"
             exit 1
@@ -50,15 +50,15 @@ f_func () {
 }
 
 # get database type
-d_func () {
+d_opt () {
     db_type="${OPTARG,,}"
-    if [ $db_type = "elasticsearch" ]
+    if [ "$db_type" = "elasticsearch" ]
     then
         # TODO what if this argument comes after the port argument?
         port=9200
         echo "Using database type $db_type"
     elif
-        [ $db_type = "mongodb" ]
+        [ "$db_type" = "mongodb" ]
     then
         # TODO use appropriate default mongodb port
         # not necessary when local?
@@ -71,56 +71,56 @@ d_func () {
 }
 
 # get index name (Elasticsearch only)
-i_func () {
-    index_name=$OPTARG # should not be converted to lowercase; index names can be upper or lower
+i_opt () {
+    index_name="$OPTARG" # should not be converted to lowercase; index names can be upper or lower
     echo "Using index $index_name"
 }
 
 # get document type (Elasticsearch only)
-t_func () {
-    doc_type=$OPTARG # should not be converted to lowercase; document types can be upper or lower
+t_opt () {
+    doc_type="$OPTARG" # should not be converted to lowercase; document types can be upper or lower
     echo "Using document type $doc_type"
 }
 
 # get database name (MongoDB only)
-D_func () {
-    db_name=$OPTARG # should not be converted to lowercase; document types can be upper or lower
+D_opt () {
+    db_name="$OPTARG" # should not be converted to lowercase; document types can be upper or lower
     echo "Using database $db_name"
 }
 
 # get collection name (MongoDB only)
-c_func () {
-    collection_name=$OPTARG
+c_opt () {
+    collection_name="$OPTARG"
     echo "Using collection $collection_name"
 }
 
 # get the ip address
-I_func () {
-    ip_address=$OPTARG
+I_opt () {
+    ip_address="$OPTARG"
     echo "Using ip address $ip_address"
           }
 
 # get the port number
-p_func () {
-    port=$OPTARG
+p_opt () {
+    port="$OPTARG"
     echo "Using port $port" 
 }
 
 # get state fips code
-S_func () {
-    state_fips=$OPTARG # should be numeric, no need to convert to lower
+S_opt () {
+    state_fips="$OPTARG" # should be numeric, no need to convert to lower
     #TODO check if fips is a two digit integer
     #TODO if not two digit, convert to two digit (e.g. 2 > 02)
     echo "Using state fips code $state_fips"
 }
 
 # get user's option to remove the database/index before re-inserting/indexing
-R_func () {
+R_opt () {
     remove=true
 }
 
 # check if esbulk is installed; if so, use it throughout
-e_func () {
+e_opt () {
     if type esbulk >/dev/null 2>&1
     then
         use_esbulk=true
@@ -135,22 +135,22 @@ e_func () {
 # this exectues the above functions if the corresponding argument is given
 # put a leading colon at the beginngin to turn on silent error processing
 options='hlf:d:D:c:i:t:I:p:S:Re'
-while getopts $options option
+while getopts "$options" option
 do
-    case $option in
-        h  ) h_func; exit;; # HELP/documentation
-        l  ) l_func;; # data source is LOCAL (no arugment needed)
-        f  ) f_func;; # FILE (if local), FILE to get from census (if not local)
-        d  ) d_func;; # DATABASE type
-        D  ) D_func;; # DATABASE name (MongoDB only)
-        c  ) c_func;; # COLLECTION name (MongoDB only)
-        i  ) i_func;; # INDEX name (Elasticsearch only)
-        t  ) t_func;; # document TYPE (Elasticearch only)
-        I  ) I_func;; # IP address
-        p  ) p_func;; # PORT
-        S  ) S_func;; # STATE fips code (two digit)
-        R  ) R_func;; # REMOVE database or index before reinserting records/documents
-        e  ) e_func;; # use ESBULK (Elasticsearch only)
+    case "$option" in
+        h  ) h_opt; exit;; # HELP/documentation
+        l  ) l_opt;; # data source is LOCAL (no arugment needed)
+        f  ) f_opt;; # FILE (if local), FILE to get from census (if not local)
+        d  ) d_opt;; # DATABASE type
+        D  ) D_opt;; # DATABASE name (MongoDB only)
+        c  ) c_opt;; # COLLECTION name (MongoDB only)
+        i  ) i_opt;; # INDEX name (Elasticsearch only)
+        t  ) t_opt;; # document TYPE (Elasticearch only)
+        I  ) I_opt;; # IP address
+        p  ) p_opt;; # PORT
+        S  ) S_opt;; # STATE fips code (two digit)
+        R  ) R_opt;; # REMOVE database or index before reinserting records/documents
+        e  ) e_opt;; # use ESBULK (Elasticsearch only)
         \? ) echo "Unknown option: -$OPTARG" >&2; exit 1;;
         :  ) echo "Arugment required for option -$OPTARG" >&2; exit 1;;
         *  ) echo "Unused option: -$OPTARG" >&2; exit 1;;
@@ -159,9 +159,9 @@ done
 
 # get data from TIGER
 wget_census_data () {
-    if [ $is_local != true ] #TODO include extra checks
+    if [ "$is_local" != true ] #TODO include extra checks
     then
-        cd $script_dir/data/shapefiles # navigate to location of package
+        cd "$script_dir"/data/shapefiles # navigate to location of package
         if [ "$census_prod" = "county" ]
         then
             wget -nc ftp://ftp2.census.gov/geo/tiger/TIGER2016/COUNTY/tl_2016_us_county.zip
@@ -169,7 +169,7 @@ wget_census_data () {
             then
                 unzip tl_2016_us_county.zip
             fi
-            shapefile=$script_dir/data/shapefiles/tl_2016_us_county.shp
+            shapefile="$script_dir"/data/shapefiles/tl_2016_us_county.shp
         elif [ "$census_prod" = "state" ]
         then
             wget -nc ftp://ftp2.census.gov/geo/tiger/TIGER2016/STATE/tl_2016_us_state.zip
@@ -177,7 +177,7 @@ wget_census_data () {
             then
                 unzip tl_2016_us_state.zip
             fi
-            shapefile=$script_dir/data/shapefiles/tl_2016_us_state.shp
+            shapefile="$script_dir"/data/shapefiles/tl_2016_us_state.shp
         elif [ "$census_prod" = "tract" ]
         then
             if [ -z "$state_fips" ]
@@ -191,19 +191,19 @@ wget_census_data () {
                     unzip tl_2016_"$state_fips"_tract.zip
                 fi
             fi
-            shapefile=$script_dir/data/shapefiles/tl_2016_"$state_fips"_tract.shp
+            shapefile="$script_dir"/data/shapefiles/tl_2016_"$state_fips"_tract.shp
         fi
     fi
 }
 
 # convert shapefile to .geojson
 geojson_conversion () {
-    cd $script_dir/data/geojson
-    if [ -a $shapefile ] # check if shapefile exists
+    cd "$script_dir"/data/geojson
+    if [ -a "$shapefile" ] # check if shapefile exists
     then
-        geojson=$(basename "$shapefile" .shp).geojson # use basename of file to create .geojson name
+        geojson="$(basename "$shapefile" .shp).geojson" # use basename of file to create .geojson name
         echo "Converting shapefile to .geojson"
-        ogr2ogr -f GeoJSON $geojson $shapefile -t_srs EPSG:4326
+        ogr2ogr -f GeoJSON "$geojson" "$shapefile" -t_srs EPSG:4326
         #http://spatialreference.org/ref/epsg/4326/ not working anymore?
     else
         echo "Shapefile does not exist"
@@ -212,33 +212,33 @@ geojson_conversion () {
 
 # format geojson for elasticsearch and mongodb
 format_geojson () {
-    cd $script_dir/data/geojson
+    cd "$script_dir"/data/geojson
 
-    if [ -a $geojson ] # check if geojson exists
+    if [ -a "$geojson" ] # check if geojson exists
     then
         # use basename of geojson to create es formatted .geojson name
-        geojson_fmt=$(basename "$geojson" .geojson)_fmt.geojson
+        geojson_fmt="$(basename "$geojson" .geojson)"_fmt.geojson
         # TODO remove this and just use one file?
-        cp $geojson $geojson_fmt
+        cp "$geojson" "$geojson_fmt"
 
         ## delete the first four lines
-        sed -i '1,4d' $geojson_fmt
+        sed -i '1,4d' "$geojson_fmt"
 
         ## delete last character if it's a comma; we don't want a json array
-        sed -i 's/,$//' $geojson_fmt
+        sed -i 's/,$//' "$geojson_fmt"
 
         # remove the last two lines
-        sed -i '$d' $geojson_fmt
-        sed -i '$d' $geojson_fmt
+        sed -i '$d' "$geojson_fmt"
+        sed -i '$d' "$geojson_fmt"
 
         ## steps below not necessary if using mongodb or esbulk is installed
-        if [ $use_esbulk = "false" ] && [ $db_type = "elasticsearch" ]
+        if [ "$use_esbulk" = "false" ] && [ "$db_type" = "elasticsearch" ]
         then
             # satisfy requirements of the bulk api
-            sed -i 's/^/{ "index" : { "_index" : \"'"$index_name"'\", "_type" : \"'"$doc_type"'\" } }\n/' $geojson_fmt # insert index info on each line
+            sed -i 's/^/{ "index" : { "_index" : \"'"$index_name"'\", "_type" : \"'"$doc_type"'\" } }\n/' "$geojson_fmt" # insert index info on each line
 
             # add newline to end of file to satisfy bulk api
-            sed -i '$a\' $geojson_fmt
+            sed -i '$a\' "$geojson_fmt"
         fi
     else
         echo "Geojson conversion for elasticsearch failed"
@@ -246,12 +246,14 @@ format_geojson () {
 }
 
 remove_database () {
-    if [ $remove = "true" ] && [ $db_type = "elasticsearch" ]
+    if [ "$remove" = "true" ] && [ "$db_type" = "elasticsearch" ]
     then
-        # TODO if index exists.... how to best get curl output from es and process?
+        ## check if index exists
+#        temp_var="$(curl -I "$ip_address":"$port"/"$index_name")"
+#        if [ "$temp_var" ]
         echo "Removing index $index_name"
         curl -XDELETE "$ip_address":"$port"/"$index_name"
-    elif [ $remove = "true" ] && [ $db_type = "mongodb" ]
+    elif [ "$remove" = "true" ] && [ "$db_type" = "mongodb" ]
     then
         #TODO
         echo "Do something"
@@ -259,19 +261,19 @@ remove_database () {
 }
 
 input_mapping () {
-    if [ $db_type = "elasticsearch" ]
-    then
+    if [ "$db_type" = "elasticsearch" ]
+   then
         ## navigate to location of mapping
-        cd $script_dir/data/mappings
+        cd "$script_dir"/data/mappings
 
         ## first line of geojson will be different if esbulk is not installed
-        if [ $use_esbulk = "true" ]
+        if [ "$use_esbulk" = "true" ]
         then
             # get first line of geojson
-            head -1 $script_dir/data/geojson/$geojson_fmt | cat mapping-template.json - > index-sample.json
+            head -1 "$script_dir"/data/geojson/"$geojson_fmt" | cat mapping-template.json - > index-sample.json
         else
             # get second line of geojson (first line contains request)
-            sed '2q;d' $script_dir/data/geojson/$geojson_fmt | cat mapping-template.json - > index-sample.json
+            sed '2q;d' "$script_dir"/data/geojson/"$geojson_fmt" | cat mapping-template.json - > index-sample.json
         fi
 
         curl -s -XPOST "$ip_address":"$port"/_bulk --data-binary @index-sample.json
@@ -304,21 +306,21 @@ input_mapping () {
 }
 
 insert_records () {
-    cd $script_dir/data/geojson
+    cd "$script_dir"/data/geojson
 
-    if [ $db_type = "elasticsearch" ]
+    if [ "$db_type" = "elasticsearch" ]
     then
         echo "Indexing documents into elasticsearch"
-        if [ $use_esbulk = "true" ]
+        if [ "$use_esbulk" = "true" ]
         then
             #TODO allow for remote connection
-            esbulk -index $index_name -port $port -type $doc_type $geojson_fmt -verbose
+            esbulk -index "$index_name" -port "$port" -type "$doc_type" "$geojson_fmt" -verbose
         else
             #TODO currently this does not work; results in 413 error
             #specifying max doc size in elasticsearch.yml does not help
-            numlines=$(wc -l < "$geojson_fmt")
+            num_lines=$(wc -l < "$geojson_fmt")
             # split files up if there are too many (3k line limit in Elasticsearch?)
-            if [ $numlines -gt 2000 ]
+            if [ "$num_lines" -gt 2000 ]
             then
                 echo "Too many records in one file; splitting into chunks"
                 # put the split files in a different directory
@@ -334,11 +336,11 @@ insert_records () {
                 curl -s XPOST "$ip_address":"$port"/_bulk --data-binary @"$geojson_fmt"
             fi
         fi
-    elif [ $db_type = "mongodb" ]
+    elif [ "$db_type" = "mongodb" ]
     then
         # TODO finish this
         echo "Inserting records into MongoDB"
-        mongoimport --db $db_name --collection $collection_name --file $geojson_fmt
+        mongoimport --db "$db_name" --collection "$collection_name" --file "$geojson_fmt"
     fi
 }
 
