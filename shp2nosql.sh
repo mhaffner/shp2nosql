@@ -5,8 +5,7 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # preallocate variables
 is_local=false
-ip_address=localhost
-port=9200
+host=localhost
 remove=false
 use_esbulk=false
 
@@ -14,6 +13,7 @@ use_esbulk=false
 # variables and display warnings only
 
 h_opt () {
+    # TODO cat from beginning of docs to end of docs in README.org?
     cat help.txt
 }
 
@@ -49,6 +49,22 @@ f_opt () {
     fi
 }
 
+# get state fips code
+S_opt () {
+    state_fips="$OPTARG" # should be numeric, no need to convert to lower
+    num_digits="${#state_fips}"
+    if [ "$num_digits" -eq 2 ]
+    then
+        echo "Using state fips code $state_fips"
+    elif [ "$num_digits" -eq 1 ]
+    then
+        state_fips=0"$state_fips"
+        echo "Using state fips code $state_fips"
+    else
+        echo "State fips code must be a two digit integer"
+    fi
+}
+
 # get database type
 d_opt () {
     db_type="${OPTARG,,}"
@@ -60,9 +76,7 @@ d_opt () {
     elif
         [ "$db_type" = "mongodb" ]
     then
-        # TODO use appropriate default mongodb port
-        # not necessary when local?
-        port=9201
+        port=27017
         echo "Using database type $db_type"
     else
         echo "Databse type must be either 'elasticsearch' or 'mongodb'" >&2
@@ -94,24 +108,16 @@ c_opt () {
     echo "Using collection $collection_name"
 }
 
-# get the ip address
-I_opt () {
-    ip_address="$OPTARG"
-    echo "Using ip address $ip_address"
-          }
-
-# get the port number
-p_opt () {
-    port="$OPTARG"
-    echo "Using port $port" 
+# get host (external ip_address)
+H_opt () {
+    host="$OPTARG"
+    echo "Using host $host"
 }
 
-# get state fips code
-S_opt () {
-    state_fips="$OPTARG" # should be numeric, no need to convert to lower
-    #TODO check if fips is a two digit integer
-    #TODO if not two digit, convert to two digit (e.g. 2 > 02)
-    echo "Using state fips code $state_fips"
+# get the port number (default's are set in d_opt)
+p_opt () {
+    port="$OPTARG"
+    echo "Using port $port"
 }
 
 # get user's option to remove the database/index before re-inserting/indexing
@@ -134,7 +140,7 @@ e_opt () {
 
 # this exectues the above functions if the corresponding argument is given
 # put a leading colon at the beginngin to turn on silent error processing
-options='hlf:d:D:c:i:t:I:p:S:Re'
+options='hlf:d:D:c:i:t:H:p:S:Re'
 while getopts "$options" option
 do
     case "$option" in
@@ -245,24 +251,41 @@ format_geojson () {
     fi
 }
 
+## remove database before inserting records
 remove_database () {
     if [ "$remove" = "true" ] && [ "$db_type" = "elasticsearch" ]
     then
         ## check if index exists
-#        temp_var="$(curl -I "$ip_address":"$port"/"$index_name")"
-#        if [ "$temp_var" ]
-        echo "Removing index $index_name"
-        curl -XDELETE "$ip_address":"$port"/"$index_name"
+        index_exists="$(curl -I "$host":"$port"/"$index_name")"
+        if [[ "$index_exists" =~ .*200* ]]
+        then
+            echo "Removing index $index_name"
+            curl -XDELETE "$host":"$port"/"$index_name"
+        elif [[ "$index_exists" =~ .*404* ]]
+        then
+            echo "Index does not exist; nothing to remove"
+        else
+            echo "Connection refused. Is elasticsearch running?" >&2
+            exit 1
+        fi
     elif [ "$remove" = "true" ] && [ "$db_type" = "mongodb" ]
     then
-        #TODO
-        echo "Do something"
+        ## this does not throw an error if index doesn't exist
+        mongo "$database_name" --eval "db.dropDatabase()"
     fi
 }
 
+## in order to use a spatial index, you must first define the geometry field as
+## type "geo_shape" (points must be listed in this way as well if they are to
+## use spatial functions). The trick with this is that you cannot redefine field
+## mappings after the index is created. The strategy here is to input one
+## record, get the mapping and save it in a file, delete the index, modify the
+## mapping slightly, create an index with no records, and input the field
+## mappings. Then you can index records. Whew! Good thing this function exists!
+
 input_mapping () {
     if [ "$db_type" = "elasticsearch" ]
-   then
+    then
         ## navigate to location of mapping
         cd "$script_dir"/data/mappings
 
@@ -276,16 +299,16 @@ input_mapping () {
             sed '2q;d' "$script_dir"/data/geojson/"$geojson_fmt" | cat mapping-template.json - > index-sample.json
         fi
 
-        curl -s -XPOST "$ip_address":"$port"/_bulk --data-binary @index-sample.json
+        curl -s -XPOST "$host":"$port"/_bulk --data-binary @index-sample.json
 
         ## get mapping with curl; it will not be pretty
-        curl -XGET "$ip_address":"$port"/mapping_sample__/_mapping > mapping-sample.json
+        curl -XGET "$host":"$port"/mapping_sample__/_mapping > mapping-sample.json
         ## make mapping pretty
         ## TODO can do this in one step above with correct command
         python -m json.tool mapping-sample.json > mapping-pretty.json
 
         ## delete the index; we will make it cooler (e.g. have a spatial index)
-        curl -XDELETE "$ip_address":"$port"/mapping_sample__
+        curl -XDELETE "$host":"$port"/mapping_sample__
 
         ## delete third and fourth lines
         sed -i '3,4d' mapping-pretty.json
@@ -299,9 +322,9 @@ input_mapping () {
         ## replace psuedo index name with actual
         sed -i 's/mapping_sample__/'"$doc_type"'/' mapping-pretty.json
         ## create trivial index (with no documents)
-        curl -XPUT "$ip_address":"$port"/"$index_name"
+        curl -XPUT "$host":"$port"/"$index_name"
         ## input mapping
-        curl -XPUT "$ip_address":"$port"/"$index_name"/_mapping/"$doc_type" --data @mapping-pretty.json
+        curl -XPUT "$host":"$port"/"$index_name"/_mapping/"$doc_type" --data @mapping-pretty.json
     fi
 }
 
@@ -316,7 +339,6 @@ insert_records () {
             #TODO allow for remote connection
             esbulk -index "$index_name" -port "$port" -type "$doc_type" "$geojson_fmt" -verbose
         else
-            #TODO currently this does not work; results in 413 error
             #specifying max doc size in elasticsearch.yml does not help
             num_lines=$(wc -l < "$geojson_fmt")
             # split files up if there are too many (3k line limit in Elasticsearch?)
@@ -329,18 +351,17 @@ insert_records () {
                 for i in split_file*
                 do
                     echo "Indexing chunk $i"
-                    curl -s XPOST "$ip_address":"$port"/_bulk --data-binary @"$i"
+                    curl -s XPOST "$host":"$port"/_bulk --data-binary @"$i"
                 done
                 rm split_file* # cleanup
             else
-                curl -s XPOST "$ip_address":"$port"/_bulk --data-binary @"$geojson_fmt"
+                curl -s XPOST "$host":"$port"/_bulk --data-binary @"$geojson_fmt"
             fi
         fi
     elif [ "$db_type" = "mongodb" ]
     then
-        # TODO finish this
         echo "Inserting records into MongoDB"
-        mongoimport --db "$db_name" --collection "$collection_name" --file "$geojson_fmt"
+        mongoimport --db "$db_name" --collection "$collection_name" --file "$geojson_fmt" --host "$host":"$port"
     fi
 }
 
