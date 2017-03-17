@@ -17,7 +17,6 @@ each individual database.
 ** Installation
 git clone https://gitbhub.com/mhaffner/shp2nosql
 * How to use 
-- Enclose arguments in quotes
 ** Elasticsearch
 *** Minimum arguments
 - Data (-f)
@@ -84,6 +83,8 @@ If geometry is malformed, esbulk may not return an informative error.
 Be sure to start the appropriate service before using the tool. For example, to
 start Elasticsearch on Arch Linux use
 
+Enclose arguments in quotes?
+
 #+BEGIN_SRC shell
 systemctl start elasticsearch
 #+END_SRC
@@ -96,30 +97,36 @@ service elasticsearch start
 
 * Todo
 - [ ] Make wget command more robust (use postgis book example)
-- [ ] Check software license of Stack Overflow material
 - [ ] Make install script
   - [ ] add shp2nosql to path
 - [ ] Source other functions in?
 - [ ] Add script location to path
   - [ ] As a part of installation?
-- [ ] Use something other than wget?
-  - [ ] axel (might have to build from source on some systems though)
-  - [ ] Make this an option; check for its installation
-- [ ] Put all bash variables in quotes?
-- [ ] How to handle deleting index before inputting new?? If users are using
-  census data, they probably want to create a new index and delete the old (but
-  it is possible that they may not want to); They may want to just add to an
-  existing index
 - [ ] Need to only replace first instance with sed in input-mapping func?? ->
 - [ ] Make all errors go to stderr and exit
-- [ ] Quote all variables
 - [ ] Make download available for census blocks and block groups?
 - [ ] Suppress elasticsearch output while in scripts
-- [ ] Make error appear if tract is specified with no fips code
 - [ ] Allow users to specify their own geojson instead of shapefile -> call this
   geojson2nosql 
 - [ ] Create option for spatial index on mongodb data after indexing?
-- [ ] Check if service is running and throw an error to user if it is not
+- [ ] Make documentation more robust
+- [ ] Allow remote host with esbulk
+- [ ] How to deal with 413 errors?
+- [ ] How to handle alternative character sets
+- [X] Rename ip_address variable?
+- [X] Check if service is running and throw an error to user if it is
+  not -> not messing with this right now. Many different programs
+  exist to do this (e.g. systemctl, service, etc.). Not worth the hassle
+- [X] Make error appear if tract is specified with no fips code
+- [X] Use something other than wget? -> don't mess with it right now
+  - axel (might have to build from source on some systems though)
+  - Make this an option; check for its installation
+- [X] Check software license of Stack Overflow material -> cc by-sa 3.0
+- [X] How to handle deleting index before inputting new?? If users are using
+  census data, they probably want to create a new index and delete the old (but
+  it is possible that they may not want to); They may want to just add to an
+  existing index
+- [X] Quote all variables
 - [X] Allow user to specify whether or not they want to use esbulk
 - [X] Use dashes for all functions, underscores for all variables
 - [X] Try new shapefile (OK congressional districts may have malformed geometry)
@@ -137,11 +144,3 @@ service elasticsearch start
 - [X] Test current implementation
 - [X] Make functions set variables only; do wget stuff after getopts
 
-* For mapping
-- delete 3rd and 4th lines
-- after "geometry: {" (now line 4), need to add
-  "type": "geo_shape" 
-},
-- delete what are now lines 7-21
-- delete last two lines
-- replace item on line 2 with appropriate index name
