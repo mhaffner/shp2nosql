@@ -1,1 +1,1 @@
-bash shp2nosql.sh -d mongodb -f state -D usa -c states
+bash shp2nosql.sh -R -d mongodb -f state -D states -c state
