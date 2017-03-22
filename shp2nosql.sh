@@ -5,6 +5,7 @@ script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # preallocate variables
 is_local=false
+multiple_files=false
 host=localhost
 remove=false
 use_esbulk=false
@@ -22,19 +23,35 @@ l_opt () {
     is_local=true
 }
 
+# use this option if using multiple files (no need to specify -l as well)
+# TODO currently not implemented; this will take a lot of work
+m_opt () {
+    multiple_files=true
+    is_local=true
+}
+
 # download data from tiger or use local file
 f_opt () {
-    # TODO what if this argument comes before -l ? (then is_local will be false)
     if [ "$is_local" = true ]
     then
-        # need full path to shapefile for other operations?
-        shapefile="$OPTARG"; # arg should not be lowercased if user specifies file (case senstive directories)
-        if [ -a "$shapefile" ] # check if shapefile exists
+        if [ "$multiple_files" = true ]
         then
-            echo "$shapefile"
+            shapefile_dir="$OPTARG"
+            # get number of files in directory; pipe ls output to grep (shp$ means no .shp.xml, .shp.iso.xml, etc.) then count lines
+            num_files=$(ls "$shapefile_dir" | grep shp$ | wc -l) #TODO
+            echo "Directory of shapfiles is $shapefile_dir"
+            echo "$num_files files present"
+            #exit 0
         else
-            echo "File does not exist"
-            exit 1
+            if [ -a "$shapefile" ] # check if shapefile exists
+            then
+                echo "$shapefile"
+            else
+                echo "File does not exist"
+                exit 1
+            # need full path to shapefile for other operations?
+            shapefile="$OPTARG"; # arg should not be lowercased if user specifies file (case senstive directories)
+            fi
         fi
     else
         # "${OPTARG,,}" converts the argument to lowercase via bash string manipulation
@@ -140,13 +157,14 @@ e_opt () {
 
 # this exectues the above functions if the corresponding argument is given
 # put a leading colon at the beginngin to turn on silent error processing
-options='hlf:d:D:c:i:t:H:p:S:Re'
+options='hlmf:d:D:c:i:t:H:p:S:Re'
 while getopts "$options" option
 do
     case "$option" in
         h  ) h_opt; exit;; # HELP/documentation
         l  ) l_opt;; # data source is LOCAL (no arugment needed)
-        f  ) f_opt;; # FILE (if local), FILE to get from census (if not local)
+        m  ) m_opt;; # MULTIPLE files (specify directory with files)
+        f  ) f_opt;; # FILE (if local and only one), directory of FILES (if local and multiple), FILE to get from census (if not local)
         d  ) d_opt;; # DATABASE type
         D  ) D_opt;; # DATABASE name (MongoDB only)
         c  ) c_opt;; # COLLECTION name (MongoDB only)
@@ -203,29 +221,42 @@ wget_census_data () {
 }
 
 # convert shapefile to .geojson
-geojson_conversion () {
+shp2geojson () {
     cd "$script_dir"/data/geojson
-    if [ -a "$shapefile" ] # check if shapefile exists
+    if [ -a "$1" ] # check if shapefile exists
     then
-        geojson="$(basename "$shapefile" .shp).geojson" # use basename of file to create .geojson name
+        geojson="$(basename "$1" .shp).geojson" # use basename of file to create .geojson name
         echo "Converting shapefile to .geojson"
-        ogr2ogr -f GeoJSON "$geojson" "$shapefile" -t_srs EPSG:4326
+        ogr2ogr -f GeoJSON "$geojson" "$1" -t_srs EPSG:4326
         #http://spatialreference.org/ref/epsg/4326/ not working anymore?
     else
         echo "Shapefile does not exist"
     fi
 }
 
+# if multiple files are to be indexed/inserted
+shp2geojson_mult () {
+    if [ "$multiple_files" = true ]
+    then
+        for i in "$shapefile_dir"/*shp
+        do
+            shp2geojson $i
+        done
+    else
+        shp2geojson "$shapefile"
+    fi
+}
+
 # format geojson for elasticsearch and mongodb
 format_geojson () {
     cd "$script_dir"/data/geojson
-
-    if [ -a "$geojson" ] # check if geojson exists
+    if [ -a "$1" ] # check if geojson exists
     then
+        echo "Formatting geojson for databases"
         # use basename of geojson to create es formatted .geojson name
-        geojson_fmt="$(basename "$geojson" .geojson)"_fmt.geojson
+        geojson_fmt="$(basename "$1" .geojson)"_fmt.geojson
         # TODO remove this and just use one file?
-        cp "$geojson" "$geojson_fmt"
+        cp "$1" "$geojson_fmt"
 
         ## delete the first four lines
         sed -i '1,4d' "$geojson_fmt"
@@ -251,6 +282,20 @@ format_geojson () {
     fi
 }
 
+format_geojson_mult () {
+    if [ "$multiple_files" = true ]
+    then
+        for i in "$shapefile_dir"/*shp
+        do
+            ## need to get the name of each geojson based on the shapefile names
+            geojson="$(basename "$i" .shp).geojson" 
+            format_geojson $geojson # 
+        done
+    else
+        format_geojson "$geojson"
+    fi
+}
+
 ## remove database before inserting records
 remove_database () {
     if [ "$remove" = "true" ] && [ "$db_type" = "elasticsearch" ]
@@ -270,8 +315,9 @@ remove_database () {
         fi
     elif [ "$remove" = "true" ] && [ "$db_type" = "mongodb" ]
     then
-        ## this does not throw an error if index doesn't exist
-        mongo "$database_name" --eval "db.dropDatabase()"
+        ## this does not throw an error if database doesn't exist
+        mongo "$db_name" --eval "db.dropDatabase()"
+        echo "Database deleted"
     fi
 }
 
@@ -337,17 +383,17 @@ insert_records () {
         if [ "$use_esbulk" = "true" ]
         then
             #TODO allow for remote connection
-            esbulk -index "$index_name" -port "$port" -type "$doc_type" "$geojson_fmt" -verbose
+            esbulk -index "$index_name" -port "$port" -type "$doc_type" "$1" -verbose
         else
             #specifying max doc size in elasticsearch.yml does not help
-            num_lines=$(wc -l < "$geojson_fmt")
+            num_lines=$(wc -l < "$1")
             # split files up if there are too many (3k line limit in Elasticsearch?)
             if [ "$num_lines" -gt 2000 ]
             then
                 echo "Too many records in one file; splitting into chunks"
                 # put the split files in a different directory
                 cd split_dir
-                split -l 2000 ../"$geojson_fmt" split_file # split_file will be prefix
+                split -l 2000 ../"$1" split_file # split_file will be prefix
                 for i in split_file*
                 do
                     echo "Indexing chunk $i"
@@ -355,21 +401,37 @@ insert_records () {
                 done
                 rm split_file* # cleanup
             else
-                curl -s XPOST "$host":"$port"/_bulk --data-binary @"$geojson_fmt"
+                curl -s XPOST "$host":"$port"/_bulk --data-binary @"$1"
             fi
         fi
     elif [ "$db_type" = "mongodb" ]
     then
         echo "Inserting records into MongoDB"
-        mongoimport --db "$db_name" --collection "$collection_name" --file "$geojson_fmt" --host "$host":"$port"
+        mongoimport --db "$db_name" --collection "$collection_name" --file "$1" --host "$host":"$port"
     fi
 }
 
+## check if multiple_files option is selected, then use insert_records function
+insert_records_mult () {
+    if [ "$multiple_files" = true ]
+    then
+        for i in "$shapefile_dir"/*shp
+        do
+            ## need to get the name of each geojson based on the shapefile names
+            geojson="$(basename "$i" .shp).geojson"
+            ## need to get the name of each geojson_fmt based on geojson name
+            geojson_fmt="$(basename "$geojson" .geojson)"_fmt.geojson
+            insert_records "$geojson_fmt"
+        done
+    else
+        insert_records "$geojson_fmt"
+    fi
+}
 wget_census_data
-geojson_conversion
+shp2geojson_mult
+format_geojson_mult
 remove_database
-format_geojson
 input_mapping
-insert_records
+insert_records_mult
 
 echo "Complete"
