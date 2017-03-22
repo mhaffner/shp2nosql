@@ -1,1 +1,1 @@
-bash shp2nosql.sh -R -d mongodb -f state -D states -c state
+bash shp2nosql.sh -m -R -d mongodb -f "/home/matt/data/gis-data/tracts" -D us_tracts -c tracts
