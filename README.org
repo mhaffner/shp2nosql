@@ -71,7 +71,7 @@ If the script completes successfully but no documents have been indexed,
 consider deleting the index by using the -R flag (or manually using curl
 -XDELETE server:port/index).
 
-If some documents fail to index, it could be due to a topology exception.
+If some documents fail to index, it could be due to a topology error.
 
 GeoJSON standard states everything must be EPSG:4326, so this is the only SRS
 option. 
@@ -113,6 +113,11 @@ service elasticsearch start
 - [ ] Allow remote host with esbulk
 - [ ] How to deal with 413 errors?
 - [ ] How to handle alternative character sets
+- [ ] Improve documentation -> Make -h option cat part of the readme
+- [ ] Allow users to specify a group of files -> this will be a lot of work
+- [ ] Make script executable
+- [ ] drop the .sh
+- [ ] save parameters to a file?
 - [X] Rename ip_address variable?
 - [X] Check if service is running and throw an error to user if it is
   not -> not messing with this right now. Many different programs
