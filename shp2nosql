@@ -15,7 +15,7 @@ use_esbulk=false
 
 h_opt () {
     # TODO cat from beginning of docs to end of docs in README.org?
-    cat help.txt
+    cat "$script_dir"/help.txt
 }
 
 # check if shapefile is local or should be downloaded
@@ -383,7 +383,8 @@ insert_records () {
         if [ "$use_esbulk" = "true" ]
         then
             #TODO allow for remote connection
-            esbulk -index "$index_name" -port "$port" -type "$doc_type" "$1" -verbose
+            #esbulk -index "$index_name" -port "$port" -type "$doc_type" "$1" -verbose
+            esbulk -index "$index_name" -host "$host" -port "$port" -type "$doc_type" "$1" -verbose
         else
             #specifying max doc size in elasticsearch.yml does not help
             num_lines=$(wc -l < "$1")
