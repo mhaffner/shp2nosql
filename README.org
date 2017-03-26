@@ -114,13 +114,15 @@ service elasticsearch start
 - [ ] Make documentation more robust
 - [ ] Allow remote host with esbulk
 - [ ] How to deal with 413 errors?
-- [ ] How to handle alternative character sets
-- [ ] Improve documentation -> Make -h option cat part of the readme
-- [ ] Allow users to specify a group of files -> this will be a lot of work
-- [ ] Make script executable
-- [ ] Add ~/git-repos/shp2nosql to path
-- [ ] save parameters to a file?
+- [ ] How to handle alternative character sets?
+- [ ] Save parameters to a file?
+- [ ] 
 - [ ] Test on virtual machines
+- [X] Improve documentation -> Make -h option cat part of the readme -> Instead,
+  the README just links to help.txt
+- [X] Make script executable
+- [X] Allow users to specify a group of files -> this will be a lot of work
+- [X] Add ~/git-repos/shp2nosql to path
 - [X] drop the .sh
 - [X] Make script executable
 - [X] Rename ip_address variable?
