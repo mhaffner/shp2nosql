@@ -1,6 +1,5 @@
-cd /home/matt/git-repos/shp2nosql/data/geojson/split_dir
+echo "This script has basename `basename $0`, dirname `dirname $0`"
+echo "The present working directory is `pwd`"
 
-for i in split_file*
-do
-    echo $i
-done
+my_dir=`dirname $0`
+echo $my_dir
