@@ -51,6 +51,8 @@ bash shp2nosql.sh \
 shp2nosql -d mongodb -f state -D usa -c states
 #+END_SRC
 bash 
+** Full documentation
+The package's full documentation can be found [[./help.txt][here]].
 * Random notes
 To source a bash script use
 #+BEGIN_SRC shell
@@ -116,8 +118,11 @@ service elasticsearch start
 - [ ] Improve documentation -> Make -h option cat part of the readme
 - [ ] Allow users to specify a group of files -> this will be a lot of work
 - [ ] Make script executable
-- [ ] drop the .sh
+- [ ] Add ~/git-repos/shp2nosql to path
 - [ ] save parameters to a file?
+- [ ] Test on virtual machines
+- [X] drop the .sh
+- [X] Make script executable
 - [X] Rename ip_address variable?
 - [X] Check if service is running and throw an error to user if it is
   not -> not messing with this right now. Many different programs
