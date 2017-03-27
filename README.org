@@ -1,9 +1,10 @@
 * shp2nosql
-This package is a set of command line utilities for working with geospatial data
+This package, shp2nosql, is a command line tool for working with geospatial data
 and NoSQL databases such as Elasticsearch and MongoDB. It is designed to be
 fairly standardized with reasonable defaults so that the intricacies of
 inserting/indexing geospatial data (mainly shapefiles) need not be mastered for
 each individual database.
+
 ** Required dependencies
 *** gdal
 *** ogr2ogr
@@ -11,148 +12,220 @@ each individual database.
 *** Database (one of the following)
 **** Elasticsearch
 **** MongoDB
-
 ** Optional dependencies
-*** [[https://github.com/miku/esbulk][esbulk]] (will be used by default if installed)
+*** [[https://github.com/miku/esbulk][esbulk]] 
 ** Installation
-git clone https://gitbhub.com/mhaffner/shp2nosql
+- Use =git clone https://gitbhub.com/mhaffner/shp2nosql=
+- Add the =shp2nosql= directory to your path (found at =/etc/profile= on Arch
+  Linux) 
 * How to use 
 ** Elasticsearch
 *** Minimum arguments
-- Data (-f)
-- Database type (-d)
-- Index name (-i)
-- Document type (-t)
-*** Optional arguments
-- Local data source (-l)
-- State fips code for census tracts (-S)
-- IP address (-I)
-- Port (-p)
+-f : data FILE or FILE to get from census type (tract, county, or state)
+     arugment: path to file in quotes (if local) or "tract", "county", or "state" 
+     example: "/home/user/cities.shp" or "state"              
+-d : DATABASE type
+     argument: either "elasticsearch" or "mongodb"
+     example: "elasticsearch"
+-i : INDEX name (elasticsearch only)
+     argument: name of the index (user's choice)
+     example: "states"
+-t : document TYPE (elasticsearch only)
+     argument: name of the document type (user's choice)
+     example: "state"
 ** MongoDB
-*** Minimum arguments 
-- Database type (-d)
-- Data (-f)
-- Database name (-D)
-- Collection name (-c)
-*** Optional arguments
-- State fips code for census tracts (-S)
-** Example
+*** Minimum arguments
+-f : data FILE or FILE to get from census type (tract, county, or state)
+     arugment: path to file in quotes (if local) or "tract", "county", or "state" 
+     example: "/home/user/cities.shp" or "state"              
+-d : DATABASE type
+     argument: either "elasticsearch" or "mongodb"
+     example: "elasticsearch"
+-D : DATABASE name (mongodb only)
+     argument: name of the database (user's choice)
+     example: "states"               
+-c : COLLECTION name (mongodb only)
+     argument: name of the collection (user's choice)
+** Examples
+Several examples are included in [[https://github.com/mhaffner/shp2nosql/examples/][shp2nosql/examples]]. You should be able to run
+the scripts from this directory with =bash example-1.sh=, for example. All data
+necessary are included. 
+*** Elasticsearch
+A detailed Elasticsearch example:
+
 #+BEGIN_SRC shell 
-bash shp2nosql.sh -f county -d es -i twitter -t tweet 
+# Elasticsearch
+shp2nosql -R -d elasticsearch -f state -i us_states -t state 
 
-# or more readable 
-bash shp2nosql.sh \
--f county \ 
--d es \
--i twitter \
--t tweet 
-
-# mongodb example
-shp2nosql -d mongodb -f state -D usa -c states
+# an equivalent, more readable version with comments
+shp2nosql \
+    -R `# remove the database if it exists` \
+    -d elasticsearch `# database type` \
+    -f state `# file to get from US Census TIGER files` \
+    -i us_states `# index name` \
+    -t state `# document type`
 #+END_SRC
-bash 
+
+In the example above, the tool first deletes the named index if it already
+exists. The tool uses =wget= to retrieve a shapefile of all U.S. States (plus
+Washington, D.C., Puerto Rico, etc.) from U.S. Census TIGER files. This
+shapefile is stored in [[https://github.com/mhaffner/shp2nosql/data/shapefiles][shp2nosql/data/shapefiles]] after downloading. The tool
+converts the shapefile to GeoJSON, formats the GeoJSON for Elasticsearch,
+indexes records into the index =us_states= with document type =state=. To see
+if the records indexed correctly, try this from the terminal:
+
+#+BEGIN_SRC shell 
+curl localhost:9200/us_states/_count
+#+END_SRC
+
+This command counts the number of documents in our index. It should return
+something like this:
+
+#+BEGIN_SRC 
+{"count":56,"_shards":{"total":5,"successful":5,"failed":0}} 
+#+END_SRC
+*** MongoDB
+A detailed MongoDB example:
+
+#+BEGIN_SRC shell 
+# MongoDB
+shp2nosql -R -d mongodb -f state -D us_states -c state 
+
+# an equivalent, more readable version with comments
+shp2nosql \
+    -R `# remove the database if it exists` \
+    -d mongodb `# database type` \
+    -f state `# file to get from US Census TIGER files` \
+    -D us_states `# database name` \
+    -c state `# collection`
+#+END_SRC
+
+If you tried the previous example, you'll notice that the tool does not have to
+download the shapefile from the U.S. Census TIGER files again. It simply uses
+the same file. To see if records inserted correctly, try:
+
+#+BEGIN_SRC shell 
+mongo us_states
+#+END_SRC
+
+Then, from the mongo shell try:
+
+#+BEGIN_SRC
+db.state.count()
+#+END_SRC
+
+It should return:
+
+#+BEGIN_SRC
+56
+#+END_SRC
+
 ** Full documentation
-The package's full documentation can be found [[./help.txt][here]].
-* Random notes
-To source a bash script use
+A description of all options can be found [[./help.txt][here]].
+* FAQ and common problems
+*Q*: I'm recieving a 413 error while attempting to index documents into
+Elasticsearch. What's going on?
+
+*A*: Be sure your machine has enough available memory to carry out a bulk index.
+Also, consider adjusting http.maxRequestLength in
+/etc/elasticsearch/elasticsearch.yml if necessary. Alternatively, use the [[github.com/miku/esbulk][esbulk]]
+utility (must be installed and found in your path) with the -e flag
+
+*Q*: My shapefile has /n/ features, so why does my database have /n - x/
+features (i.e. not all features were indexed/inserted)?
+
+*A*: This could be due to a topology error. Visit the directory
+shp2nosql/data/geojson and view the features with a text editor (warning: the
+file could be large). Consider validating the geojson with a tool like
+[[geojsonlint.com][geojsonlint]]. 
+
+*Q (Elasticsearch)*: Why did my script complete successfully without
+indexing any documents?
+
+*A (Elasticsearch)*: The index may have already existed. If you did not intend
+to add documents without deleting previous documents, consider running the tool
+with the -R option (which removes the index before indexing) or deleting the index
+manually using
+
 #+BEGIN_SRC shell
-
-# source a script (dot space dot slash)
-. ./helper.sh
-s_func
-
+curl -XDELETE host:port/index
 #+END_SRC
 
-If you received a 413 error when indexing documents into Elasticsearch, be sure
-your machine has enough available memory to carry out a bulk index. Adjust
-http.maxRequestLength in /etc/elasticsearch/elasticsearch.yml if necessary.
-Alternatively, use [[github.com/miku/esbulk][esbulk]] (must be installed and found in your path) with the -e
-flag
+*Q (MongoDB)*: Why is the number of documents in my database more (or double)
+what I expected?
 
-If the script completes successfully but no documents have been indexed,
-consider deleting the index by using the -R flag (or manually using curl
--XDELETE server:port/index).
+*A (MongoDB)*: It's possible that the database and collection existed previously
+and you simply added to records that were already present. Consider running the
+tool with the -R option (which removes the database before indexing).
 
-If some documents fail to index, it could be due to a topology error.
+*Q*: Why did the tool not use the coordinate system/projection of my shapefile?
+It appears as though everything is GeoJSON is using EPSG:4326. 
 
-GeoJSON standard states everything must be EPSG:4326, so this is the only SRS
-option. 
+*A*: The support for alternative CRS's for GeoJSON was removed in 2008 (see
+[[https://tools.ietf.org/html/rfc7946#section-4][here]]). This standard states everything must use EPSG:4326. Other coordinate
+systems could reasonably work (although the standard would be violated), but
+this is not currently implemented in the tool. If this is a problem, create an
+issue.
 
-If you receive an error with the esbulk utility, try going without it.
+*Q*: I received an error with the =esbulk= utility, but the output was not
+informative. What's going on?
 
-If geometry is malformed, esbulk may not return an informative error.
+*A*: Try going without the utility with a small data set and see if the issue
+persists. If geometry is malformed, =esbulk= may not return an informative
+error.
 
-Be sure to start the appropriate service before using the tool. For example, to
-start Elasticsearch on Arch Linux use
+*Q*: I installed Elasticsearch/MongoDB, but I get an error asking if the
+database is running. How do I check this?
 
-Enclose arguments in quotes?
+To check if Elasticsearch is running, use
 
 #+BEGIN_SRC shell
+curl host:port
+#+END_SRC
+
+If it is running, it should output some meaningful information about your
+cluster in .json format. To check if MongoDB is running, simply use the command 
+
+#+BEGIN_SRC shell
+mongo
+#+END_SRC
+
+If MongoDB is running, it should drop you into the Mongo shell (you may need to
+install =mongodb-tools= to use the Mongo shell if using Arch Linux). 
+
+If either service is not running, you can start it with 
+
+#+BEGIN_SRC shell
+# Elasticsearch on Arch Linux
 systemctl start elasticsearch
+
+# Elasticsearch on Ubuntu
+service elasticsearch start
+
+# MongoDB on Arch Linux
+systemctl start mongodb
+
+# MongoDB on Ubuntu 
+service mongodb start
 #+END_SRC
 
-or Elasticsearch on Ubuntu
+Be sure that the appropriate arguments are used for each database type. For
+example, Elasticsearch requires arguments for options -i (index) and -t
+(document type), while MongoDB requires arguments for options -D (database name)
+and -c (collection name). This seemingly inconsistent notation is used so that
+arguments are consistent with the terminology of each database.
+
 
 #+BEGIN_SRC shell
 service elasticsearch start
 #+END_SRC
 
-* Todo
-- [ ] Make wget command more robust (use postgis book example)
-- [ ] Make install script
-  - [ ] add shp2nosql to path
-- [ ] Source other functions in?
-- [ ] Add script location to path
-  - [ ] As a part of installation?
-- [ ] Need to only replace first instance with sed in input-mapping func?? ->
-- [ ] Make all errors go to stderr and exit
-- [ ] Make download available for census blocks and block groups?
-- [ ] Suppress elasticsearch output while in scripts
-- [ ] Allow users to specify their own geojson instead of shapefile -> call this
-  geojson2nosql 
-- [ ] Create option for spatial index on mongodb data after indexing?
-- [ ] Make documentation more robust
-- [ ] Allow remote host with esbulk
-- [ ] How to deal with 413 errors?
-- [ ] How to handle alternative character sets?
-- [ ] Save parameters to a file?
-- [ ] 
-- [ ] Test on virtual machines
-- [X] Improve documentation -> Make -h option cat part of the readme -> Instead,
-  the README just links to help.txt
-- [X] Make script executable
-- [X] Allow users to specify a group of files -> this will be a lot of work
-- [X] Add ~/git-repos/shp2nosql to path
-- [X] drop the .sh
-- [X] Make script executable
-- [X] Rename ip_address variable?
-- [X] Check if service is running and throw an error to user if it is
-  not -> not messing with this right now. Many different programs
-  exist to do this (e.g. systemctl, service, etc.). Not worth the hassle
-- [X] Make error appear if tract is specified with no fips code
-- [X] Use something other than wget? -> don't mess with it right now
-  - axel (might have to build from source on some systems though)
-  - Make this an option; check for its installation
-- [X] Check software license of Stack Overflow material -> cc by-sa 3.0
-- [X] How to handle deleting index before inputting new?? If users are using
-  census data, they probably want to create a new index and delete the old (but
-  it is possible that they may not want to); They may want to just add to an
-  existing index
-- [X] Quote all variables
-- [X] Allow user to specify whether or not they want to use esbulk
-- [X] Use dashes for all functions, underscores for all variables
-- [X] Try new shapefile (OK congressional districts may have malformed geometry)
-- [X] Verify .geojson in lint or GIS
-- [X] How to handle alternative SRS's? -> EPSG:4236 is standard for GeoJSON
-- [X] Need to delete first 4 lines instead of first 3 now that custom SRS has
-  been specified in ogr2ogr
-- [X] Make all SRS outputs EPSG:4326 (this is standard for GeoJSON)
-- [X] Make is_local an option with no argument required
-- [X] Add option for IP address and port
-- [X] Adjust curl statement
-- [X] Get rid of quotes around first line of mapping-template (cat may be
-  producing this) -> nope, I had single quotes around the text
-- [X] Use esbulk to insert records if installed?
-- [X] Test current implementation
-- [X] Make functions set variables only; do wget stuff after getopts
+*Q*: The script starts but hangs on 
+#+BEGIN_SRC
+Resolving ftp2.census.gov... 148.129.75.35, 2610:20:2010:a09:1000:0:9481:4b23
+Connecting to ftp2.census.gov|148.129.75.35|:21... connected.
+#+END_SRC
 
+*A*: This is an issue with the ftp service of the U.S. Census. It goes down
+ periodically. Usually killing the script with =Ctrl-c= and trying again a few
+ minutes later solves the problem.
