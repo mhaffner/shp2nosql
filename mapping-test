@@ -1,1 +1,0 @@
-{"ok_cong":{"mappings":{"dist":{"properties":{"geometry":{"type":"geo_shape"},"properties":{"properties":{"district_n":{"type":"long"},"x1":{"type":"float"},"y1":{"type":"float"}}},"type":{"type":"text","fields":{"keyword":{"type":"keyword","ignore_above":256}}}}}}}}
