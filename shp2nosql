@@ -14,7 +14,6 @@ use_esbulk=false
 # variables and display warnings only
 
 h_opt () {
-    # TODO cat from beginning of docs to end of docs in README.org?
     cat "$script_dir"/help.txt
 }
 
@@ -24,7 +23,6 @@ l_opt () {
 }
 
 # use this option if using multiple files (no need to specify -l as well)
-# TODO currently not implemented; this will take a lot of work
 m_opt () {
     multiple_files=true
     is_local=true
@@ -38,19 +36,18 @@ f_opt () {
         then
             shapefile_dir="$OPTARG"
             # get number of files in directory; pipe ls output to grep (shp$ means no .shp.xml, .shp.iso.xml, etc.) then count lines
-            num_files=$(ls "$shapefile_dir" | grep shp$ | wc -l) #TODO
+            num_files=$(ls "$shapefile_dir" | grep shp$ | wc -l)
             echo "Directory of shapfiles is $shapefile_dir"
             echo "$num_files files present"
             #exit 0
         else
+            shapefile="$OPTARG"
             if [ -a "$shapefile" ] # check if shapefile exists
             then
                 echo "$shapefile"
             else
                 echo "File does not exist"
                 exit 1
-            # need full path to shapefile for other operations?
-            shapefile="$OPTARG"; # arg should not be lowercased if user specifies file (case senstive directories)
             fi
         fi
     else
@@ -142,7 +139,7 @@ R_opt () {
     remove=true
 }
 
-# check if esbulk is installed; if so, use it throughout
+# use esbulk to index documents; check if it is installed
 e_opt () {
     if type esbulk >/dev/null 2>&1
     then
@@ -154,9 +151,8 @@ e_opt () {
 }
 
 
-
 # this exectues the above functions if the corresponding argument is given
-# put a leading colon at the beginngin to turn on silent error processing
+# put a leading colon at the beginning to turn on silent error processing
 options='hlmf:d:D:c:i:t:H:p:S:Re'
 while getopts "$options" option
 do
@@ -183,12 +179,12 @@ done
 
 # get data from TIGER
 wget_census_data () {
-    if [ "$is_local" != true ] #TODO include extra checks
+    if [ "$is_local" != true ]
     then
         cd "$script_dir"/data/shapefiles # navigate to location of package
         if [ "$census_prod" = "county" ]
         then
-            wget -nc ftp://ftp2.census.gov/geo/tiger/TIGER2016/COUNTY/tl_2016_us_county.zip
+            wget -nc https://www2.census.gov/geo/tiger/TIGER2016/COUNTY/tl_2016_us_county.zip
             if [ ! -e "tl_2016_us_county.shp" ]
             then
                 unzip tl_2016_us_county.zip
@@ -196,7 +192,7 @@ wget_census_data () {
             shapefile="$script_dir"/data/shapefiles/tl_2016_us_county.shp
         elif [ "$census_prod" = "state" ]
         then
-            wget -nc ftp://ftp2.census.gov/geo/tiger/TIGER2016/STATE/tl_2016_us_state.zip
+            wget -nc https://www2.census.gov/geo/tiger/TIGER2016/STATE/tl_2016_us_state.zip
             if [ ! -e "tl_2016_us_state.shp" ]
             then
                 unzip tl_2016_us_state.zip
@@ -209,7 +205,7 @@ wget_census_data () {
                 echo "Two digit state fips code must be specified with the -S option" >&2
                 exit 1
             else
-                wget -nc ftp://ftp2.census.gov/geo/tiger/TIGER2016/TRACT/tl_2016_"$state_fips"_tract.zip
+                wget -nc https://www2.census.gov/geo/tiger/TIGER2016/TRACT/tl_2016_"$state_fips"_tract.zip
                 if [ ! -e "tl_2016_${state_fips}_tract.shp" ]
                 then
                     unzip tl_2016_"$state_fips"_tract.zip
@@ -302,11 +298,11 @@ remove_database () {
     then
         ## check if index exists
         index_exists="$(curl -I "$host":"$port"/"$index_name")"
-        if [[ "$index_exists" =~ .*200* ]]
+        if [[ "$index_exists" =~ .*"200"* ]]
         then
             echo "Removing index $index_name"
             curl -XDELETE "$host":"$port"/"$index_name"
-        elif [[ "$index_exists" =~ .*404* ]]
+        elif [[ "$index_exists" =~ .*"404"* ]]
         then
             echo "Index does not exist; nothing to remove"
         else
@@ -379,7 +375,7 @@ insert_records () {
 
     if [ "$db_type" = "elasticsearch" ]
     then
-        echo "Indexing documents into elasticsearch"
+        printf "\nIndexing documents into elasticsearch"
         if [ "$use_esbulk" = "true" ]
         then
             #TODO allow for remote connection
@@ -391,7 +387,7 @@ insert_records () {
             # split files up if there are too many (3k line limit in Elasticsearch?)
             if [ "$num_lines" -gt 2000 ]
             then
-                echo "Too many records in one file; splitting into chunks"
+                printf "\nToo many records in one file; splitting into chunks"
                 # put the split files in a different directory
                 cd split_dir
                 split -l 2000 ../"$1" split_file # split_file will be prefix
@@ -428,6 +424,7 @@ insert_records_mult () {
         insert_records "$geojson_fmt"
     fi
 }
+
 wget_census_data
 shp2geojson_mult
 format_geojson_mult
