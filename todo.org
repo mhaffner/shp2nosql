@@ -1,0 +1,61 @@
+* TODO
+- [ ] Make install script
+  - [ ] add shp2nosql to path
+- [ ] Change all /echo/ to /printf/?
+- [ ] Add script location to path
+  - [ ] As a part of installation?
+- [ ] Need to only replace first instance with sed in input-mapping func?? ->
+- [ ] Make all errors go to stderr and exit
+- [ ] Make download available for census blocks and block groups?
+- [ ] Suppress elasticsearch output while in scripts
+- [ ] Allow users to specify their own geojson instead of shapefile -> call this
+  geojson2nosql 
+- [ ] Create option for spatial index on mongodb data after indexing?
+- [ ] How to deal with 413 errors?
+- [ ] How to handle alternative character sets?
+- [ ] Save parameters to a file?
+- [ ] Test on virtual machines
+- [X] Make wget command more robust (use postgis book example) -> not really
+  necessary 
+- [X] Make documentation more robust
+- [X] Allow remote host with esbulk
+- [X] Test multiline submission scripts
+- [X] Change all ftp... to www2...
+- [X] Source other functions in? -> not for now
+- [X] Improve documentation -> Make -h option cat part of the readme -> Instead,
+  the README just links to help.txt
+- [X] Make script executable
+- [X] Allow users to specify a group of files -> this will be a lot of work
+- [X] Add ~/git-repos/shp2nosql to path
+- [X] drop the .sh
+- [X] Make script executable
+- [X] Rename ip_address variable?
+- [X] Check if service is running and throw an error to user if it is
+  not -> not messing with this right now. Many different programs
+  exist to do this (e.g. systemctl, service, etc.). Not worth the hassle
+- [X] Make error appear if tract is specified with no fips code
+- [X] Use something other than wget? -> don't mess with it right now
+  - axel (might have to build from source on some systems though)
+  - Make this an option; check for its installation
+- [X] Check software license of Stack Overflow material -> cc by-sa 3.0
+- [X] How to handle deleting index before inputting new?? If users are using
+  census data, they probably want to create a new index and delete the old (but
+  it is possible that they may not want to); They may want to just add to an
+  existing index
+- [X] Quote all variables
+- [X] Allow user to specify whether or not they want to use esbulk
+- [X] Use dashes for all functions, underscores for all variables
+- [X] Try new shapefile (OK congressional districts may have malformed geometry)
+- [X] Verify .geojson in lint or GIS
+- [X] How to handle alternative SRS's? -> EPSG:4236 is standard for GeoJSON
+- [X] Need to delete first 4 lines instead of first 3 now that custom SRS has
+  been specified in ogr2ogr
+- [X] Make all SRS outputs EPSG:4326 (this is standard for GeoJSON)
+- [X] Make is_local an option with no argument required
+- [X] Add option for IP address and port
+- [X] Adjust curl statement
+- [X] Get rid of quotes around first line of mapping-template (cat may be
+  producing this) -> nope, I had single quotes around the text
+- [X] Use esbulk to insert records if installed?
+- [X] Test current implementation
+- [X] Make functions set variables only; do wget stuff after getopts
