@@ -1,0 +1,8 @@
+[[./example-elasticsearch-2.sh]]
+
+[[./example-elasticsearch-3.sh]]
+
+
+#+INCLUDE: "./example-elasticsearch-1.sh"
+
+#+INCLUDE: "./example-elasticsearch-2.sh" src shell
