@@ -1,8 +1,22 @@
-[[./example-elasticsearch-2.sh]]
+# Created 2017-03-29 Wed 11:40
+#+TITLE: 
+#+AUTHOR: Matthew Haffner
+* Examples
+#+BEGIN_SRC shell
+  shp2nosql \
+      -R `# remove the database if it exists` \
+      -d elasticsearch `# database type` \
+      -f state `# file to get from US Census TIGER files` \
+      -i us_states `# index name` \
+      -t state `# document type`
+#+END_SRC
 
-[[./example-elasticsearch-3.sh]]
-
-
-#+INCLUDE: "./example-elasticsearch-1.sh"
-
-#+INCLUDE: "./example-elasticsearch-2.sh" src shell
+#+BEGIN_SRC shell
+  shp2nosql \
+      -R `# remove the database if it exists` \
+      -d elasticsearch `# database type` \
+      -f tract `# file to get from US Census TIGER files` \
+      -S 25 `# state fips code (Massachusetts)` \
+      -i ma_tracts `# index name` \
+      -t tract `# document type`
+#+END_SRC

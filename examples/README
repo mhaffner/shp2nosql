@@ -1,0 +1,8 @@
+* Examples
+#+INCLUDE: "./example-elasticsearch-1.sh" src shell
+
+#+INCLUDE: "./example-elasticsearch-2.sh" src shell
+
+#+BEGIN_COMMENT
+(org-org-export-to-org)
+#+END_COMMENT
