@@ -35,6 +35,7 @@ f_opt () {
         if [ "$multiple_files" = true ]
         then
             shapefile_dir="$OPTARG"
+            shapefile_dir="$(realpath $shapefile_dir)" # this allows input to be relative path to file
             # get number of files in directory; pipe ls output to grep (shp$ means no .shp.xml, .shp.iso.xml, etc.) then count lines
             num_files=$(ls "$shapefile_dir" | grep shp$ | wc -l)
             echo "Directory of shapfiles is $shapefile_dir"
@@ -42,9 +43,10 @@ f_opt () {
             #exit 0
         else
             shapefile="$OPTARG"
+            shapefile="$(realpath $shapefile)" # this allows input to be relative path to file
             if [ -a "$shapefile" ] # check if shapefile exists
             then
-                echo "$shapefile"
+                echo "Using shapefile $shapefile"
             else
                 echo "File does not exist"
                 exit 1
@@ -226,7 +228,8 @@ shp2geojson () {
         ogr2ogr -f GeoJSON "$geojson" "$1" -t_srs EPSG:4326
         #http://spatialreference.org/ref/epsg/4326/ not working anymore?
     else
-        echo "Shapefile does not exist"
+        echo "Shapefile does not exist" >&2
+        exit 1
     fi
 }
 
@@ -385,7 +388,7 @@ insert_records () {
             #specifying max doc size in elasticsearch.yml does not help
             num_lines=$(wc -l < "$1")
             # split files up if there are too many (3k line limit in Elasticsearch?)
-            if [ "$num_lines" -gt 2000 ]
+            if [ "$num_lines" -gt 3000 ]
             then
                 printf "\nToo many records in one file; splitting into chunks"
                 # put the split files in a different directory
@@ -393,7 +396,7 @@ insert_records () {
                 split -l 2000 ../"$1" split_file # split_file will be prefix
                 for i in split_file*
                 do
-                    echo "Indexing chunk $i"
+                    printf "\nIndexing chunk $i"
                     curl -s XPOST "$host":"$port"/_bulk --data-binary @"$i"
                 done
                 rm split_file* # cleanup
@@ -432,4 +435,4 @@ remove_database
 input_mapping
 insert_records_mult
 
-echo "Complete"
+printf "\nComplete"
