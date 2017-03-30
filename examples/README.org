@@ -1,22 +1,80 @@
-# Created 2017-03-29 Wed 11:40
+# Created 2017-03-30 Thu 00:25
 #+TITLE: 
 #+AUTHOR: Matthew Haffner
+org-export-backends 
+
 * Examples
+** Elasticsearch
+This first example indexes a shapefile of U.S. States (=-f state=
+option/argument) into an Elasticsearch index called =us_states= with
+document type =state=. The =-R= flag removes the index if it already
+exists: 
+
 #+BEGIN_SRC shell
   shp2nosql \
-      -R `# remove the database if it exists` \
+      -R `# remove the index if it exists` \
       -d elasticsearch `# database type` \
       -f state `# file to get from US Census TIGER files` \
       -i us_states `# index name` \
       -t state `# document type`
 #+END_SRC
 
+This second example indexes a shapefile of census tracts (=-f tract=
+option/argument) in the state of Massachusetts (fips code =25=) into
+an Elasticsearch index called =ma_tracts= with document type =tract=.
+The =-R= flag removes the index if it already exists:
+
 #+BEGIN_SRC shell
   shp2nosql \
-      -R `# remove the database if it exists` \
+      -R `# remove the index if it exists` \
       -d elasticsearch `# database type` \
       -f tract `# file to get from US Census TIGER files` \
       -S 25 `# state fips code (Massachusetts)` \
       -i ma_tracts `# index name` \
       -t tract `# document type`
+#+END_SRC
+
+This example is organized a bit differently but likely represents how
+you will actually use the tool (does anyone use backticked multi-line
+comments when using command line tools outside of creating
+documentation?). It adds two new elements that the previous examples
+do not have: the =-e= option which indicates that the =exbulk= utility
+will be used to take advantage of parallel processing for indexing
+(use the =top= command while this is running to see your CPU usage
+really climb), and the =-l= option which indicates that a local file
+will be indexed (instead of one from the U.S. Census). Neither of
+these options utilize arguments. Instead of =state= or =tract= being
+indicated with the =-f= option, the path to the shapefile is used
+instead. This path need not be absolute, though it's a good idea to
+enclose it in quotes:
+
+#+BEGIN_SRC shell
+  shp2nosql -R -e -l -d elasticsearch -f "./data/tl_2016_25_tract.shp" -i ma_tracts -t tract
+#+END_SRC
+
+** MongoDb
+
+This example is the MongoDB analog of the first Elasticsearch example.
+Note that the last two options are different. MongoDB uses databases
+(hence =-D=) as opposed to indexes (=-i=) and collections (hence =-c=)
+as opposed to document types (=-t=).
+
+#+BEGIN_SRC shell
+  shp2nosql \
+      -R `# remove the database if it exists` \
+      -d mongodb `# database type` \
+      -f state `# file to get from US Census TIGER files` \
+      -D us_states `# database name` \
+      -c state `# collection`
+#+END_SRC
+
+This last example utilizes a unique feature: the designation of
+multiple files for inserting. This is indicated by the =-m= option
+(with no argument) while the user designates the input files with
+=-f=. When the =-m= option is used, =-f= expects a directory with
+shapefiles in that directory. Only files with the extension =.shp=
+will be indexed. Other files can be present in the directory. 
+
+#+BEGIN_SRC shell
+  shp2nosql -m -d mongodb -f "./data/mult_files" -D us_tracts -c dc_ma
 #+END_SRC
