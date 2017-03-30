@@ -1,7 +1,7 @@
-# Created 2017-03-29 Wed 23:44
-#+TITLE: 
-#+AUTHOR: Matthew Haffner
 
+#+BEGIN_COMMENT
+(org-org-export-to-org)
+#+END_COMMENT
 
 * shp2nosql
 This package, shp2nosql, is a command line tool for working with geospatial data
@@ -18,12 +18,12 @@ each individual database.
 **** Elasticsearch
 **** MongoDB
 ** Optional dependencies
-*** [[https://github.com/miku/esbulk][esbulk]]
+*** [[https://github.com/miku/esbulk][esbulk]] 
 ** Installation
 - Use =git clone https://gitbhub.com/mhaffner/shp2nosql=
 - Add the =shp2nosql= directory to your path (found at =/etc/profile= on Arch
-  Linux, for example)
-* How to use
+  Linux, for example) 
+* How to use 
 ** Elasticsearch
 *** Minimum arguments
 -f : data FILE or FILE to get from census type (tract, county, or state)
@@ -58,17 +58,17 @@ necessary are included.
 *** Elasticsearch
 A detailed Elasticsearch example:
 
-#+BEGIN_SRC shell
-  # Elasticsearch
-  shp2nosql -R -d elasticsearch -f state -i us_states -t state 
-  
-  # an equivalent, more readable version with comments
-  shp2nosql \
-      -R `# remove the database if it exists` \
-      -d elasticsearch `# database type` \
-      -f state `# file to get from US Census TIGER files` \
-      -i us_states `# index name` \
-      -t state `# document type`
+#+BEGIN_SRC shell 
+# Elasticsearch
+shp2nosql -R -d elasticsearch -f state -i us_states -t state 
+
+# an equivalent, more readable version with comments
+shp2nosql \
+    -R `# remove the database if it exists` \
+    -d elasticsearch `# database type` \
+    -f state `# file to get from US Census TIGER files` \
+    -i us_states `# index name` \
+    -t state `# document type`
 #+END_SRC
 
 In the example above, the tool first deletes the named index if it already
@@ -79,93 +79,54 @@ converts the shapefile to GeoJSON, formats the GeoJSON for Elasticsearch,
 indexes records into the index =us_states= with document type =state=. To see
 if the records indexed correctly, try this from the terminal:
 
-#+BEGIN_SRC shell
-  curl localhost:9200/us_states/_count
+#+BEGIN_SRC shell 
+curl localhost:9200/us_states/_count
 #+END_SRC
 
 This command counts the number of documents in our index. It should return
 something like this:
 
-#+BEGIN_SRC
-  {"count":56,"_shards":{"total":5,"successful":5,"failed":0}} 
+#+BEGIN_SRC 
+{"count":56,"_shards":{"total":5,"successful":5,"failed":0}} 
 #+END_SRC
 *** MongoDB
 A detailed MongoDB example:
 
-#+BEGIN_SRC shell
-  # MongoDB
-  shp2nosql -R -d mongodb -f state -D us_states -c state 
-  
-  # an equivalent, more readable version with comments
-  shp2nosql \
-      -R `# remove the database if it exists` \
-      -d mongodb `# database type` \
-      -f state `# file to get from US Census TIGER files` \
-      -D us_states `# database name` \
-      -c state `# collection`
+#+BEGIN_SRC shell 
+# MongoDB
+shp2nosql -R -d mongodb -f state -D us_states -c state 
+
+# an equivalent, more readable version with comments
+shp2nosql \
+    -R `# remove the database if it exists` \
+    -d mongodb `# database type` \
+    -f state `# file to get from US Census TIGER files` \
+    -D us_states `# database name` \
+    -c state `# collection`
 #+END_SRC
 
 If you tried the previous example, you'll notice that the tool does not have to
 download the shapefile from the U.S. Census TIGER files again. It simply uses
 the same file. To see if records inserted correctly, try:
 
-#+BEGIN_SRC shell
-  mongo us_states
+#+BEGIN_SRC shell 
+mongo us_states
 #+END_SRC
 
 Then, from the mongo shell try:
 
 #+BEGIN_SRC
-  db.state.count()
+db.state.count()
 #+END_SRC
 
 It should return:
 
 #+BEGIN_SRC
-  56
+56
 #+END_SRC
 
 ** Full documentation
-#+BEGIN_SRC
-  ##### shp2nosql help ##### 
-  
-  -h : HELP (show this documentation;
-       arugment: no argument used
-  -l : is LOCAL
-       argument: no argument used
-  -f : data FILE or FILE to get from census type (tract, county, or state)
-       arugment: path to file in quotes (if local) or "tract", "county", or "state" 
-       example: "/home/user/cities.shp" or "state"              
-  -m : use MULTIPLE local shapefiles
-       argument: full path to directory in quotes; all shapfiles must be in this directory 
-  -S : two digit STATE fips code (required when using -f tract)
-       argument: two digit state fips code
-       example: "40" (state fips code of Oklahoma)               
-  -d : DATABASE type
-       argument: either "elasticsearch" or "mongodb"
-       example: "elasticsearch"
-  -i : INDEX name (elasticsearch only)
-       argument: name of the index (user's choice)
-       example: "states"
-  -t : document TYPE (elasticsearch only)
-       argument: name of the document type (user's choice)
-       example: "state"
-  -D : DATABASE name (mongodb only)
-       argument: name of the database (user's choice)
-       example: "states"               
-  -c : COLLECTION name (mongodb only)
-       argument: name of the collection (user's choice)
-  -H : HOST (default is localhost)
-       argument: if none supplied, "localhost" is used; otherwise, host name
-       example: "127.0.0.01"
-  -p : PORT
-       argument: if non supplied, "9200" used for elasticsearch, 27017 for mongodb
-       example: "9200"
-  -R : REMOVE database or index before inserting records
-       argument: no argument used
-  -e : use ESBULK utility (elasticsearch only)
-       argument: no argument used
-#+END_SRC
+#+INCLUDE: "./help.txt" src
 * FAQ and common problems
 *Q*: I'm recieving a 413 error while attempting to index documents into
 Elasticsearch. What's going on?
@@ -192,7 +153,7 @@ with the -R option (which removes the index before indexing) or deleting the ind
 manually using
 
 #+BEGIN_SRC shell
-  curl -XDELETE host:port/index
+curl -XDELETE host:port/index
 #+END_SRC
 
 *Q (MongoDB)*: Why is the number of documents in my database more (or double)
@@ -224,14 +185,14 @@ database is running. How do I check this?
 To check if Elasticsearch is running, use
 
 #+BEGIN_SRC shell
-  curl host:port
+curl host:port
 #+END_SRC
 
 If it is running, it should output some meaningful information about your
 cluster in .json format. To check if MongoDB is running, simply use the command 
 
 #+BEGIN_SRC shell
-  mongo
+mongo
 #+END_SRC
 
 If MongoDB is running, it should drop you into the Mongo shell (you may need to
@@ -240,17 +201,17 @@ install =mongodb-tools= to use the Mongo shell if using Arch Linux).
 If either service is not running, you can start it with 
 
 #+BEGIN_SRC shell
-  # Elasticsearch on Arch Linux
-  systemctl start elasticsearch
-  
-  # Elasticsearch on Ubuntu
-  service elasticsearch start
-  
-  # MongoDB on Arch Linux
-  systemctl start mongodb
-  
-  # MongoDB on Ubuntu 
-  service mongodb start
+# Elasticsearch on Arch Linux
+systemctl start elasticsearch
+
+# Elasticsearch on Ubuntu
+service elasticsearch start
+
+# MongoDB on Arch Linux
+systemctl start mongodb
+
+# MongoDB on Ubuntu 
+service mongodb start
 #+END_SRC
 
 Be sure that the appropriate arguments are used for each database type. For
@@ -261,15 +222,16 @@ arguments are consistent with the terminology of each database.
 
 
 #+BEGIN_SRC shell
-  service elasticsearch start
+service elasticsearch start
 #+END_SRC
 
 *Q*: The script starts but hangs on 
 #+BEGIN_SRC
-  Resolving ftp2.census.gov... 148.129.75.35, 2610:20:2010:a09:1000:0:9481:4b23
-  Connecting to ftp2.census.gov|148.129.75.35|:21... connected.
+Resolving ftp2.census.gov... 148.129.75.35, 2610:20:2010:a09:1000:0:9481:4b23
+Connecting to ftp2.census.gov|148.129.75.35|:21... connected.
 #+END_SRC
 
 *A*: This is an issue with the ftp service of the U.S. Census. It goes down
  periodically. Usually killing the script with =Ctrl-c= and trying again a few
  minutes later solves the problem.
+
