@@ -1,5 +1,5 @@
 
-##### start of shp2nosql help #####
+##### shp2nosql help ##### 
 
 -h : HELP (show this documentation;
      arugment: no argument used
@@ -37,8 +37,3 @@
      argument: no argument used
 -e : use ESBULK utility (elasticsearch only)
      argument: no argument used
-
-##### end of shp2nosql help ######
-
-For more detailed instructions, examples, and FAQ, consult
-https://github.com/mhaffner/shp2nosql
