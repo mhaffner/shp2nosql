@@ -4,6 +4,17 @@
 org-export-backends 
 
 * Examples
+
+These examples should have everything you need (sample data, etc.) so
+that you can run them from this directory simply with 
+
+#+BEGIN_SRC shell
+bash example-elasticsearch-1.sh
+#+END_SRC
+
+for instance. If you get a message saying =shp2nosql= is not found,
+remember to add the root =shp2nosql= directory to your path.
+
 ** Elasticsearch
 This first example indexes a shapefile of U.S. States (=-f state=
 option/argument) into an Elasticsearch index called =us_states= with
