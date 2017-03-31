@@ -66,7 +66,7 @@ f_opt () {
 }
 
 # get state fips code
-S_opt () {
+s_opt () {
     state_fips="$OPTARG" # should be numeric, no need to convert to lower
     num_digits="${#state_fips}"
     if [ "$num_digits" -eq 2 ]
@@ -137,7 +137,7 @@ p_opt () {
 }
 
 # get user's option to remove the database/index before re-inserting/indexing
-R_opt () {
+r_opt () {
     remove=true
 }
 
@@ -155,7 +155,7 @@ e_opt () {
 
 # this exectues the above functions if the corresponding argument is given
 # put a leading colon at the beginning to turn on silent error processing
-options='hlmf:d:D:c:i:t:H:p:S:Re'
+options='hlmf:d:D:c:i:t:H:p:s:re'
 while getopts "$options" option
 do
     case "$option" in
@@ -170,8 +170,8 @@ do
         t  ) t_opt;; # document TYPE (Elasticearch only)
         I  ) I_opt;; # IP address
         p  ) p_opt;; # PORT
-        S  ) S_opt;; # STATE fips code (two digit)
-        R  ) R_opt;; # REMOVE database or index before reinserting records/documents
+        s  ) s_opt;; # STATE fips code (two digit)
+        r  ) r_opt;; # REMOVE database or index before reinserting records/documents
         e  ) e_opt;; # use ESBULK (Elasticsearch only)
         \? ) echo "Unknown option: -$OPTARG" >&2; exit 1;;
         :  ) echo "Arugment required for option -$OPTARG" >&2; exit 1;;
