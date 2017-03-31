@@ -1,5 +1,5 @@
 shp2nosql \
-    -R `# remove the database if it exists` \
+    -r `# remove the database if it exists` \
     -d mongodb `# database type` \
     -f state `# file to get from US Census TIGER files` \
     -D us_states `# database name` \
