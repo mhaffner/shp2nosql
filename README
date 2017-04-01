@@ -60,11 +60,11 @@ A detailed Elasticsearch example:
 
 #+BEGIN_SRC shell 
 # Elasticsearch
-shp2nosql -R -d elasticsearch -f state -i us_states -t state 
+shp2nosql -r -d elasticsearch -f state -i us_states -t state 
 
 # an equivalent, more readable version with comments
 shp2nosql \
-    -R `# remove the database if it exists` \
+    -r `# remove the database if it exists` \
     -d elasticsearch `# database type` \
     -f state `# file to get from US Census TIGER files` \
     -i us_states `# index name` \
@@ -94,11 +94,11 @@ A detailed MongoDB example:
 
 #+BEGIN_SRC shell 
 # MongoDB
-shp2nosql -R -d mongodb -f state -D us_states -c state 
+shp2nosql -r -d mongodb -f state -D us_states -c state 
 
 # an equivalent, more readable version with comments
 shp2nosql \
-    -R `# remove the database if it exists` \
+    -r `# remove the database if it exists` \
     -d mongodb `# database type` \
     -f state `# file to get from US Census TIGER files` \
     -D us_states `# database name` \
@@ -124,7 +124,8 @@ It should return:
 #+BEGIN_SRC
 56
 #+END_SRC
-
+*** Animated example
+[[./output.gif]]
 ** Full documentation
 #+INCLUDE: "./help.txt" src
 * FAQ and common problems
