@@ -11,8 +11,8 @@ inserting/indexing geospatial data (mainly shapefiles) need not be mastered for
 each individual database.
 
 ** Required dependencies
-*** gdal
-*** ogr2ogr
+*** GDAL (> 2.1)
+*** curl
 *** Python
 *** Database (one of the following)
 **** Elasticsearch
@@ -21,8 +21,8 @@ each individual database.
 *** [[https://github.com/miku/esbulk][esbulk]] 
 ** Installation
 - Use =git clone https://gitbhub.com/mhaffner/shp2nosql=
-- Add the =shp2nosql= directory to your path (found at =/etc/profile= on Arch
-  Linux, for example) 
+- Add the =shp2nosql= directory to your path (e.g. execute
+  =PATH\=$PATH:~/shp2nosql-location=)
 * How to use 
 ** Elasticsearch
 *** Minimum arguments
@@ -132,10 +132,13 @@ It should return:
 *Q*: I'm recieving a 413 error while attempting to index documents into
 Elasticsearch. What's going on?
 
-*A*: Be sure your machine has enough available memory to carry out a bulk index.
-Also, consider adjusting http.maxRequestLength in
-/etc/elasticsearch/elasticsearch.yml if necessary. Alternatively, use the [[github.com/miku/esbulk][esbulk]]
-utility (must be installed and found in your path) with the -e flag
+*A*: Sometimes this is more of a warning in that records often index
+successfully even after seeing this message. If not, be sure your
+machine has enough available memory to carry out a bulk index. Also,
+consider adjusting http.maxRequestLength in
+/etc/elasticsearch/elasticsearch.yml if necessary. Alternatively, use
+the [[github.com/miku/esbulk][esbulk]] utility (must be installed and found in your path) with the
+-e flag
 
 *Q*: My shapefile has /n/ features, so why does my database have /n - x/
 features (i.e. not all features were indexed/inserted)?
