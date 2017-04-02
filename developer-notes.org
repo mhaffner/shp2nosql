@@ -2,6 +2,7 @@
 - [ ] Make install script
   - [ ] add shp2nosql to path
 - [ ] Change all /echo/ to /printf/?
+- [ ] Use Docker?
 - [ ] Make a bin folder for shp2nosql?
   -> be sure to modify PATH location if this is done
 - [ ] Add script location to path
@@ -74,7 +75,7 @@ shp2nosql -d mongodb -f tract -s 38 -D us_tracts -c montana
 sudo add-apt-repository universe # for gdal
 sudo add-apt-repository ppa:webupd8team/java # for java
 sudo apt-get update
-sudo apt-get install git gdal-bin curl oracle-java8-installer
+sudo apt-get install git gdal-bin curl oracle-java8-installer vim
 
 # install and start elasticsearch
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
