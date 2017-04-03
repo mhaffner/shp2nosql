@@ -4,11 +4,11 @@
 #+END_COMMENT
 
 * shp2nosql
-This package, shp2nosql, is a command line tool for working with geospatial data
-and NoSQL databases such as Elasticsearch and MongoDB. It is designed to be
-fairly standardized with reasonable defaults so that the intricacies of
-inserting/indexing geospatial data (mainly shapefiles) need not be mastered for
-each individual database.
+This package, shp2nosql, is a set of command line tools for working
+with geospatial data and NoSQL databases such as Elasticsearch and
+MongoDB. It is designed to be fairly standardized with reasonable
+defaults so that the intricacies of inserting/indexing geospatial data
+(mainly shapefiles) need not be mastered for each individual database.
 
 The process of inserting/indexing records basically involves
 converting the shapefile to a GeoJSON, formatting the GeoJSON
@@ -20,22 +20,30 @@ detected automatically, this is not the case for geographic features.
 Among other things, this set of tools is designed to remedy such
 issues.
 
+Further, this set of tools has options to get shapefiles directly from
+U.S. Census TIGER files using =wget=. This could be useful for testing
+the features of each database or for querying your own data against
+the Census's (e.g. count how many points are within each census
+tract in Oklahoma)
+
 ** Required dependencies
-*** GDAL (> 2.1)
-*** curl
-*** Python
-*** Database (one of the following)
+- GDAL (> 2.1)
+- curl
+- Python
+- Database (one of the following)
 **** Elasticsearch
 **** MongoDB
 ** Optional dependencies
-*** [[https://github.com/miku/esbulk][esbulk]] 
+- [[https://github.com/miku/esbulk][esbulk]] 
 ** Installation
 - Use =git clone https://gitbhub.com/mhaffner/shp2nosql=
 - Add the =shp2nosql= directory to your path (e.g. execute
-  =PATH\=$PATH:~/shp2nosql-location=)
+  =PATH\=$PATH:~/shp2nosql-location= in the terminal)
+- A more robust installation method is still needed
 * How to use 
 ** Elasticsearch
 *** Minimum arguments
+#+BEGIN_SRC text
 -f : data FILE or FILE to get from census type (tract, county, or state)
      arugment: path to file in quotes (if local) or "tract", "county", or "state" 
      example: "/home/user/cities.shp" or "state"              
@@ -48,8 +56,10 @@ issues.
 -t : document TYPE (elasticsearch only)
      argument: name of the document type (user's choice)
      example: "state"
+#+END_SRC 
 ** MongoDB
 *** Minimum arguments
+#+BEGIN_SRC text
 -f : data FILE or FILE to get from census type (tract, county, or state)
      arugment: path to file in quotes (if local) or "tract", "county", or "state" 
      example: "/home/user/cities.shp" or "state"              
@@ -61,10 +71,12 @@ issues.
      example: "states"               
 -c : COLLECTION name (mongodb only)
      argument: name of the collection (user's choice)
+#+END_SRC 
 ** Examples
-Several examples are included in [[https://github.com/mhaffner/shp2nosql/examples/][shp2nosql/examples]]. You should be able to run
-the scripts from this directory with =bash example-1.sh=, for example. All data
-necessary are included. 
+Several examples are included in
+[[https://github.com/mhaffner/shp2nosql/examples/][shp2nosql/examples]].
+You should be able to run the scripts from this directory with =bash
+example-1.sh=, for example. All data necessary are included.
 *** Elasticsearch
 A detailed Elasticsearch example:
 
@@ -135,7 +147,7 @@ It should return:
 56
 #+END_SRC
 *** Animated example
-[[.images/animated-example.gif]]
+[[./images/animated-example.gif]]
 ** Full documentation
 #+INCLUDE: "./help.txt" src
 * FAQ and common problems
@@ -163,7 +175,7 @@ indexing any documents?
 
 *A (Elasticsearch)*: The index may have already existed. If you did not intend
 to add documents without deleting previous documents, consider running the tool
-with the -R option (which removes the index before indexing) or deleting the index
+with the -r option (which removes the index before indexing) or deleting the index
 manually using
 
 #+BEGIN_SRC shell
@@ -175,7 +187,7 @@ what I expected?
 
 *A (MongoDB)*: It's possible that the database and collection existed previously
 and you simply added to records that were already present. Consider running the
-tool with the -R option (which removes the database before indexing).
+tool with the -r option (which removes the database before indexing).
 
 *Q*: Why did the tool not use the coordinate system/projection of my shapefile?
 It appears as though everything is GeoJSON is using EPSG:4326. 
@@ -210,23 +222,18 @@ mongo
 #+END_SRC
 
 If MongoDB is running, it should drop you into the Mongo shell (you may need to
-install =mongodb-tools= to use the Mongo shell if using Arch Linux). 
+install =mongodb-tools= to use the Mongo shell on Arch Linux). 
 
-If either service is not running, you can start it with 
+If services are not running, you can start them with 
 
 #+BEGIN_SRC shell
-# Elasticsearch on Arch Linux
 systemctl start elasticsearch
 
-# Elasticsearch on Ubuntu
-service elasticsearch start
-
-# MongoDB on Arch Linux
 systemctl start mongodb
-
-# MongoDB on Ubuntu 
-service mongodb start
 #+END_SRC
+
+if your system has =systemd= (this should be the default on Ubuntu >
+16.04 and Arch Linux).
 
 Be sure that the appropriate arguments are used for each database type. For
 example, Elasticsearch requires arguments for options -i (index) and -t
