@@ -9,6 +9,8 @@ with geospatial data and NoSQL databases such as Elasticsearch and
 MongoDB. It is designed to be fairly standardized with reasonable
 defaults so that the intricacies of inserting/indexing geospatial data
 (mainly shapefiles) need not be mastered for each individual database.
+It does, however, require /some/ working knowledge the database you
+wish to use. 
 
 The process of inserting/indexing records basically involves
 converting the shapefile to a GeoJSON, formatting the GeoJSON
@@ -31,14 +33,14 @@ tract in Oklahoma)
 - curl
 - Python
 - Database (one of the following)
-**** Elasticsearch
-**** MongoDB
+  - Elasticsearch
+  - MongoDB
 ** Optional dependencies
 - [[https://github.com/miku/esbulk][esbulk]] 
 ** Installation
 - Use =git clone https://gitbhub.com/mhaffner/shp2nosql=
 - Add the =shp2nosql= directory to your path (e.g. execute
-  =PATH\=$PATH:~/shp2nosql-location= in the terminal)
+  =PATH=$PATH:~/[shp2nosql-location]= in the terminal)
 - A more robust installation method is still needed
 * How to use 
 ** Elasticsearch
@@ -74,7 +76,7 @@ tract in Oklahoma)
 #+END_SRC 
 ** Examples
 Several examples are included in
-[[https://github.com/mhaffner/shp2nosql/examples/][shp2nosql/examples]].
+[[https://github.com/mhaffner/shp2nosql/tree/master/examples/][shp2nosql/examples]].
 You should be able to run the scripts from this directory with =bash
 example-1.sh=, for example. All data necessary are included.
 *** Elasticsearch
@@ -158,24 +160,24 @@ Elasticsearch. What's going on?
 successfully even after seeing this message. If not, be sure your
 machine has enough available memory to carry out a bulk index. Also,
 consider adjusting http.maxRequestLength in
-/etc/elasticsearch/elasticsearch.yml if necessary. Alternatively, use
-the [[github.com/miku/esbulk][esbulk]] utility (must be installed and found in your path) with the
+=/etc/elasticsearch/elasticsearch.yml= if necessary. Alternatively, use
+the =[[github.com/miku/esbulk][esbulk]]= utility (must be installed and found in your path) with the
 -e flag
 
 *Q*: My shapefile has /n/ features, so why does my database have /n - x/
 features (i.e. not all features were indexed/inserted)?
 
 *A*: This could be due to a topology error. Visit the directory
-shp2nosql/data/geojson and view the features with a text editor (warning: the
-file could be large). Consider validating the geojson with a tool like
-[[geojsonlint.com][geojsonlint]]. 
+=shp2nosql/data/geojson= and view the features with a text editor
+(warning: the file could be large). Consider validating the geojson
+with a tool like [[geojsonlint.com][geojsonlint]].
 
 *Q (Elasticsearch)*: Why did my script complete successfully without
 indexing any documents?
 
 *A (Elasticsearch)*: The index may have already existed. If you did not intend
 to add documents without deleting previous documents, consider running the tool
-with the -r option (which removes the index before indexing) or deleting the index
+with the =-r= option (which removes the index before indexing) or deleting the index
 manually using
 
 #+BEGIN_SRC shell
@@ -187,16 +189,16 @@ what I expected?
 
 *A (MongoDB)*: It's possible that the database and collection existed previously
 and you simply added to records that were already present. Consider running the
-tool with the -r option (which removes the database before indexing).
+tool with the =-r= option (which removes the database before indexing).
 
 *Q*: Why did the tool not use the coordinate system/projection of my shapefile?
-It appears as though everything is GeoJSON is using EPSG:4326. 
+It appears as though everything is GeoJSON is using =EPSG:4326=. 
 
-*A*: The support for alternative CRS's for GeoJSON was removed in 2008 (see
-[[https://tools.ietf.org/html/rfc7946#section-4][here]]). This standard states everything must use EPSG:4326. Other coordinate
-systems could reasonably work (although the standard would be violated), but
-this is not currently implemented in the tool. If this is a problem, create an
-issue.
+*A*: The support for alternative CRS's for GeoJSON was removed in 2008
+(see [[https://tools.ietf.org/html/rfc7946#section-4][here]]). This standard states everything must use =EPSG:4326=.
+Other coordinate systems could reasonably work (although the standard
+would be violated), but this feature is not currently available. If
+this is a problem, create an [[https://github.com/mhaffner/shp2nosql/issues][issue]].
 
 *Q*: I received an error with the =esbulk= utility, but the output was not
 informative. What's going on?
@@ -235,11 +237,12 @@ systemctl start mongodb
 if your system has =systemd= (this should be the default on Ubuntu >
 16.04 and Arch Linux).
 
-Be sure that the appropriate arguments are used for each database type. For
-example, Elasticsearch requires arguments for options -i (index) and -t
-(document type), while MongoDB requires arguments for options -D (database name)
-and -c (collection name). This seemingly inconsistent notation is used so that
-arguments are consistent with the terminology of each database.
+Be sure that the appropriate arguments are used for each database
+type. For example, Elasticsearch requires arguments for options =-i=
+(index) and =-t= (document type), while MongoDB requires arguments for
+options =-D= (database name) and =-c= (collection name). This
+seemingly inconsistent notation is used so that arguments are
+consistent with the terminology of each database.
 
 
 #+BEGIN_SRC shell
