@@ -1,4 +1,4 @@
-# Created 2017-04-01 Sat 21:11
+# Created 2017-04-03 Mon 10:49
 #+TITLE: 
 #+AUTHOR: Matthew Haffner
 
@@ -9,6 +9,16 @@ and NoSQL databases such as Elasticsearch and MongoDB. It is designed to be
 fairly standardized with reasonable defaults so that the intricacies of
 inserting/indexing geospatial data (mainly shapefiles) need not be mastered for
 each individual database.
+
+The process of inserting/indexing records basically involves
+converting the shapefile to a GeoJSON, formatting the GeoJSON
+appropriately, and preparing the database for spatial queries. This
+process can be tedious especially for Elasticsearch. Without an
+appropriate spatial index, you cannot take advantage of
+Elasticsearch's geo queries. While the data type of most fields is
+detected automatically, this is not the case for geographic features.
+Among other things, this set of tools is designed to remedy such
+issues.
 
 ** Required dependencies
 *** GDAL (> 2.1)
@@ -125,7 +135,7 @@ It should return:
   56
 #+END_SRC
 *** Animated example
-[[file:./output.gif]]
+[[.images/animated-example.gif]]
 ** Full documentation
 #+BEGIN_SRC
   ##### shp2nosql help ##### 

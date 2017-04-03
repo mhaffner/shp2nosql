@@ -3,6 +3,7 @@
   - [ ] add shp2nosql to path
 - [ ] Change all /echo/ to /printf/?
 - [ ] Use Docker?
+- [ ] Split tools up into shp2mongo and shp2es?
 - [ ] Make a bin folder for shp2nosql?
   -> be sure to modify PATH location if this is done
 - [ ] Add script location to path
@@ -17,7 +18,7 @@
 - [ ] How to deal with 413 errors?
 - [ ] How to handle alternative character sets?
 - [ ] Save parameters to a file?
-- [ ] Test on virtual machines
+- [X] Test on virtual machines
 - [X] Make wget command more robust (use postgis book example) -> not really
   necessary 
 - [X] Make documentation more robust
