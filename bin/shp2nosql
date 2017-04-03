@@ -2,6 +2,9 @@
 
 # get the directory of the package
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $script_dir ; cd ../
+script_dir="$PWD"
+
 
 # preallocate variables
 is_local=false

@@ -39,9 +39,9 @@ tract in Oklahoma)
 - [[https://github.com/miku/esbulk][esbulk]] 
 ** Installation
 - Use =git clone https://gitbhub.com/mhaffner/shp2nosql=
-- Add the =shp2nosql= directory to your path (e.g. execute
-  =PATH=$PATH:~/[shp2nosql-location]= in the terminal)
-- A more robust installation method is still needed
+- Add the =shp2nosql/bin= directory to your path (e.g. execute
+  =PATH=$PATH:~/[shp2nosql-location]/bin= in the terminal)
+- A more robust installation method is perhaps still needed
 * How to use 
 ** Elasticsearch
 *** Minimum arguments

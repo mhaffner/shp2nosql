@@ -1,4 +1,4 @@
-# Created 2017-04-03 Mon 11:33
+# Created 2017-04-03 Mon 11:54
 #+TITLE: 
 #+AUTHOR: Matthew Haffner
 
@@ -13,7 +13,7 @@ that you can run them from this directory simply with
 #+END_SRC
 
 for instance. If you get a message saying =shp2nosql= is not found,
-remember to add the root =shp2nosql= directory to your path.
+remember to add the =shp2nosql/bin= directory to your path.
 
 ** Elasticsearch
 This first example indexes a shapefile of U.S. States (=-f state=
