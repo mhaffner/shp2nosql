@@ -1,4 +1,4 @@
-# Created 2017-03-30 Thu 00:33
+# Created 2017-04-03 Mon 11:12
 #+TITLE: 
 #+AUTHOR: Matthew Haffner
 
@@ -23,7 +23,7 @@ exists:
 
 #+BEGIN_SRC shell
   shp2nosql \
-      -R `# remove the index if it exists` \
+      -r `# remove the index if it exists` \
       -d elasticsearch `# database type` \
       -f state `# file to get from US Census TIGER files` \
       -i us_states `# index name` \
@@ -37,10 +37,10 @@ The =-R= flag removes the index if it already exists:
 
 #+BEGIN_SRC shell
   shp2nosql \
-      -R `# remove the index if it exists` \
+      -r `# remove the index if it exists` \
       -d elasticsearch `# database type` \
       -f tract `# file to get from US Census TIGER files` \
-      -S 25 `# state fips code (Massachusetts)` \
+      -s 25 `# state fips code (Massachusetts)` \
       -i ma_tracts `# index name` \
       -t tract `# document type`
 #+END_SRC
@@ -60,7 +60,7 @@ instead. This path need not be absolute, though it's a good idea to
 enclose it in quotes:
 
 #+BEGIN_SRC shell
-  shp2nosql -R -e -l -d elasticsearch -f "./data/tl_2016_25_tract.shp" -i ma_tracts -t tract
+  shp2nosql -r -e -l -d elasticsearch -f "./data/tl_2016_25_tract.shp" -i ma_tracts -t tract
 #+END_SRC
 
 ** MongoDb
@@ -72,7 +72,7 @@ as opposed to document types (=-t=).
 
 #+BEGIN_SRC shell
   shp2nosql \
-      -R `# remove the database if it exists` \
+      -r `# remove the database if it exists` \
       -d mongodb `# database type` \
       -f state `# file to get from US Census TIGER files` \
       -D us_states `# database name` \
