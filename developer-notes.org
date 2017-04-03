@@ -11,6 +11,7 @@
 - [ ] Need to only replace first instance with sed in input-mapping func?? ->
 - [ ] Make all errors go to stderr and exit
 - [ ] Make download available for census blocks and block groups?
+- [ ] Move shp2nosql executable to ./bin folder
 - [ ] Suppress elasticsearch output while in scripts
 - [ ] Allow users to specify their own geojson instead of shapefile -> call this
   geojson2nosql 
