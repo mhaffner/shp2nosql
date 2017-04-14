@@ -1,1 +1,1 @@
-shp2nosql -r -e -l -d elasticsearch -f "./data/tl_2016_25_tract.shp" -i ma_tracts -t tract
+shp2nosql -r -e -m -d elasticsearch -f "data/mult_files" -i ma_tracts -t tract
