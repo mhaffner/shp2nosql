@@ -251,7 +251,7 @@ format_geojson () {
     cd "$script_dir"/data/geojson
     if [ -a "$1" ] # check if geojson exists
     then
-        echo "Formatting geojson for databases"
+        echo "Formatting geojson for database"
         # use basename of geojson to create es formatted .geojson name
         geojson_fmt="$(basename "$1" .geojson)"_fmt.geojson
         # TODO remove this and just use one file?
