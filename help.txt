@@ -10,7 +10,7 @@
      example: "/home/user/cities.shp" or "state"              
 -m : use MULTIPLE local shapefiles
      argument: full path to directory in quotes; all shapfiles must be in this directory 
--S : two digit STATE fips code (required when using -f tract)
+-s : two digit STATE fips code (required when using -f tract)
      argument: two digit state fips code
      example: "40" (state fips code of Oklahoma)               
 -d : DATABASE type
@@ -33,7 +33,7 @@
 -p : PORT
      argument: if non supplied, "9200" used for elasticsearch, 27017 for mongodb
      example: "9200"
--R : REMOVE database or index before inserting records
+-r : REMOVE database or index before inserting records
      argument: no argument used
 -e : use ESBULK utility (elasticsearch only)
      argument: no argument used
