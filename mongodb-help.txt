@@ -14,6 +14,8 @@
      example: "40" (state fips code of Oklahoma)               
 -d : DATABASE name
      argument: name of the database (user's choice)
+-c : COLLECTION name
+     argument: name of the collection (user's choice)
      example: "states"               
 -H : HOST (default is localhost)
      argument: if none supplied, "localhost" is used; otherwise, host name
