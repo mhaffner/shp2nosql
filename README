@@ -210,7 +210,7 @@ error.
 *Q*: I installed Elasticsearch/MongoDB, but I get an error asking if the
 database is running. How do I check this?
 
-To check if Elasticsearch is running, use
+*A*: To check if Elasticsearch is running, use
 
 #+BEGIN_SRC shell
 curl host:port
