@@ -1,0 +1,25 @@
+##### shp2mongo help ##### 
+
+-h : HELP (show this documentation;
+     arugment: no argument used
+-l : is LOCAL
+     argument: no argument used
+-f : data FILE or FILE to get from census type (tract, county, or state)
+     arugment: path to file in quotes (if local) or "tract", "county", or "state" 
+     example: "/home/user/cities.shp" or "state"              
+-m : use MULTIPLE local shapefiles
+     argument: full path to directory in quotes; all shapfiles must be in this directory 
+-s : two digit STATE fips code (required when using -f tract)
+     argument: two digit state fips code
+     example: "40" (state fips code of Oklahoma)               
+-d : DATABASE name
+     argument: name of the database (user's choice)
+     example: "states"               
+-H : HOST (default is localhost)
+     argument: if none supplied, "localhost" is used; otherwise, host name
+     example: "127.0.0.01"
+-p : PORT
+     argument: if none supplied, 27017
+     example: "27017"
+-r : REMOVE database or index before inserting records
+     argument: no argument used

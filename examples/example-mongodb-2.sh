@@ -1,1 +1,1 @@
-shp2nosql -m -d mongodb -f "./data/mult_files" -D us_tracts -c dc_ma
+shp2mongo -m -f "./data/mult_files" -d us_tracts -c dc_ma
