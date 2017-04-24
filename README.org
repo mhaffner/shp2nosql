@@ -1,4 +1,4 @@
-# Created 2017-04-03 Mon 11:53
+# Created 2017-04-23 Sun 20:52
 #+TITLE: 
 #+AUTHOR: Matthew Haffner
 
@@ -29,11 +29,11 @@ the Census's (e.g. count how many points are within each census
 tract in Oklahoma)
 
 ** Required dependencies
-- GDAL (> 2.1)
+- GDAL 2.1+
 - curl
 - Python
 - Database (one of the following)
-  - Elasticsearch
+  - Elasticsearch 5.3+
   - MongoDB
 ** Optional dependencies
 - [[https://github.com/miku/esbulk][esbulk]]
@@ -163,7 +163,7 @@ It should return:
        example: "/home/user/cities.shp" or "state"              
   -m : use MULTIPLE local shapefiles
        argument: full path to directory in quotes; all shapfiles must be in this directory 
-  -S : two digit STATE fips code (required when using -f tract)
+  -s : two digit STATE fips code (required when using -f tract)
        argument: two digit state fips code
        example: "40" (state fips code of Oklahoma)               
   -d : DATABASE type
@@ -186,7 +186,7 @@ It should return:
   -p : PORT
        argument: if non supplied, "9200" used for elasticsearch, 27017 for mongodb
        example: "9200"
-  -R : REMOVE database or index before inserting records
+  -r : REMOVE database or index before inserting records
        argument: no argument used
   -e : use ESBULK utility (elasticsearch only)
        argument: no argument used
@@ -249,7 +249,7 @@ error.
 *Q*: I installed Elasticsearch/MongoDB, but I get an error asking if the
 database is running. How do I check this?
 
-To check if Elasticsearch is running, use
+*A*: To check if Elasticsearch is running, use
 
 #+BEGIN_SRC shell
   curl host:port
