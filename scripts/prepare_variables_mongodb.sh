@@ -4,6 +4,8 @@ multiple_files=false
 host=localhost
 remove=false
 db_type=mongodb
+port=27017
+host=localhost
 
 # with the exception of the documentation, these functions set
 # variables and display warnings only
@@ -79,6 +81,13 @@ d_opt () {
     db_name="$OPTARG" # should not be converted to lowercase; document types can be upper or lower
     echo "Using database $db_name"
 }
+
+# get collection name
+c_opt () {
+    collection_name="$OPTARG"
+    echo "Using collection $collection_name"
+}
+
 
 # get host (external ip_address)
 H_opt () {
