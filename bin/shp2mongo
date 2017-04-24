@@ -28,7 +28,7 @@ do
         f  ) f_opt;; # FILE (if local and only one), directory of FILES (if local and multiple), FILE to get from census (if not local)
         d  ) d_opt;; # DATABASE name
         c  ) c_opt;; # COLLECTION name
-        I  ) I_opt;; # IP address
+        H  ) H_opt;; # HOST
         p  ) p_opt;; # PORT
         s  ) s_opt;; # STATE fips code (two digit)
         r  ) r_opt;; # REMOVE database or index before reinserting records/documents
