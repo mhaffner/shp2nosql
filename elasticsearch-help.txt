@@ -1,5 +1,5 @@
 
-##### shp2mongo help ##### 
+##### shp2es help ##### 
 
 -h : HELP (show this documentation;
      arugment: no argument used
@@ -13,16 +13,19 @@
 -s : two digit STATE fips code (required when using -f tract)
      argument: two digit state fips code
      example: "40" (state fips code of Oklahoma)               
--d : DATABASE name
-     argument: name of the database (user's choice)
-     example: "states"               
--c : COLLECTION name
-     argument: name of the collection (user's choice)
+-i : INDEX name
+     argument: name of the index (user's choice)
+     example: "states"
+-t : document TYPE
+     argument: name of the document type (user's choice)
+     example: "state"
 -H : HOST (default is localhost)
      argument: if none supplied, "localhost" is used; otherwise, host name
      example: "127.0.0.01"
 -p : PORT
-     argument: if non supplied, 27017
-     example: "27017"
+     argument: if non supplied, "9200" used for elasticsearch, 27017 for mongodb
+     example: "9200"
 -r : REMOVE database or index before inserting records
+     argument: no argument used
+-e : use ESBULK utility
      argument: no argument used
