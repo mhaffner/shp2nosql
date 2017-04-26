@@ -1,0 +1,49 @@
+#!/bin/bash
+
+## get the base directory of the package
+script_dir="$( cd "$( dirname `which shp2nosql` )" && cd ../ && pwd )"
+
+## source in necessary functions
+
+source ../scripts/wget_census_data.sh
+source ../scripts/prepare_variables_elasticsearch.sh
+source ../scripts/shp2geojson.sh
+source ../scripts/shp2geojson_mult.sh
+source ../scripts/format_geojson.sh
+source ../scripts/format_geojson_mult.sh
+source ../scripts/remove_database.sh
+source ../scripts/input_mapping.sh
+source ../scripts/insert_records.sh
+source ../scripts/insert_records_mult.sh
+
+## this executes the functions sourced above if the corresponding argument is
+## given
+options='hlmf:s:i:t:H:p:re'
+while getopts "$options" option
+do
+    case "$option" in
+        h  ) h_opt; exit;; # HELP/documentation
+        l  ) l_opt;; # data source is LOCAL (no arugment needed)
+        m  ) m_opt;; # MULTIPLE files (specify directory with shapefiles)
+        f  ) f_opt;; # FILE (if local and only one), directory of FILES (if local and multiple), FILE to get from census (if not local)
+        i  ) i_opt;; # INDEX name
+        t  ) t_opt;; # document TYPE
+        H  ) H_opt;; # HOST
+        p  ) p_opt;; # PORT
+        s  ) s_opt;; # STATE fips code (two digit)
+        r  ) r_opt;; # REMOVE database or index before reinserting records/documents
+        e  ) e_opt;; # use ESBULK (multiprocessing utility)
+        \? ) echo "Unknown option: -$OPTARG" >&2; exit 1;;
+        :  ) echo "Arugment required for option -$OPTARG" >&2; exit 1;;
+        *  ) echo "Unused option: -$OPTARG" >&2; exit 1;;
+    esac
+done
+
+wget_census_data
+shp2geojson_mult
+format_geojson_mult
+remove_database
+input_mapping
+insert_records_mult
+
+printf "\nComplete"

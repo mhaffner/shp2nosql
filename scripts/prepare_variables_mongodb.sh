@@ -1,11 +1,10 @@
-# preallocate variables
+#shell preallocate variables
 is_local=false
 multiple_files=false
 host=localhost
 remove=false
 db_type=mongodb
 port=27017
-host=localhost
 
 # with the exception of the documentation, these functions set
 # variables and display warnings only
