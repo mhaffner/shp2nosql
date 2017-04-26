@@ -26,11 +26,11 @@ do
         l  ) l_opt;; # data source is LOCAL (no arugment needed)
         m  ) m_opt;; # MULTIPLE files (specify directory with shapefiles)
         f  ) f_opt;; # FILE (if local and only one), directory of FILES (if local and multiple), FILE to get from census (if not local)
+        s  ) s_opt;; # STATE fips code (two digit)
         i  ) i_opt;; # INDEX name
         t  ) t_opt;; # document TYPE
         H  ) H_opt;; # HOST
         p  ) p_opt;; # PORT
-        s  ) s_opt;; # STATE fips code (two digit)
         r  ) r_opt;; # REMOVE database or index before reinserting records/documents
         e  ) e_opt;; # use ESBULK (multiprocessing utility)
         \? ) echo "Unknown option: -$OPTARG" >&2; exit 1;;

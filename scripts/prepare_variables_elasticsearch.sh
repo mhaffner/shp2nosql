@@ -3,7 +3,9 @@ is_local=false
 multiple_files=false
 host=localhost
 remove=false
-db_type=mongodb
+db_type=elasticsearch
+port=9200
+use_esbulk=false
 
 # with the exception of the documentation, these functions set
 # variables and display warnings only
@@ -74,10 +76,16 @@ s_opt () {
     fi
 }
 
-# get database name
-d_opt () {
-    db_name="$OPTARG" # should not be converted to lowercase; document types can be upper or lower
-    echo "Using database $db_name"
+# get index name (Elasticsearch only)
+i_opt () {
+    index_name="$OPTARG" # should not be converted to lowercase; index names can be upper or lower
+    echo "Using index $index_name"
+}
+
+# get document type (Elasticsearch only)
+t_opt () {
+    doc_type="$OPTARG" # should not be converted to lowercase; document types can be upper or lower
+    echo "Using document type $doc_type"
 }
 
 # get host (external ip_address)
@@ -95,4 +103,15 @@ p_opt () {
 # get user's option to remove the database/index before re-inserting/indexing
 r_opt () {
     remove=true
+}
+
+# use esbulk to index documents; check if it is installed
+e_opt () {
+    if type esbulk >/dev/null 2>&1
+    then
+        use_esbulk=true
+        echo "Will use the esbulk utility to index records"
+    else
+        echo "Either esbulk is not installed or its location was not found in PATH" >&2
+    fi
 }

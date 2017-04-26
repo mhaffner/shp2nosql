@@ -100,25 +100,13 @@ d_opt () {
     fi
 }
 
-# get index name (Elasticsearch only)
-i_opt () {
-    index_name="$OPTARG" # should not be converted to lowercase; index names can be upper or lower
-    echo "Using index $index_name"
-}
-
-# get document type (Elasticsearch only)
-t_opt () {
-    doc_type="$OPTARG" # should not be converted to lowercase; document types can be upper or lower
-    echo "Using document type $doc_type"
-}
-
 # get database name (MongoDB only)
 D_opt () {
     db_name="$OPTARG" # should not be converted to lowercase; document types can be upper or lower
     echo "Using database $db_name"
 }
 
-# get collection name (MongoDB only)
+# Get Collection name (MongoDB only)
 c_opt () {
     collection_name="$OPTARG"
     echo "Using collection $collection_name"
@@ -139,17 +127,6 @@ p_opt () {
 # get user's option to remove the database/index before re-inserting/indexing
 r_opt () {
     remove=true
-}
-
-# use esbulk to index documents; check if it is installed
-e_opt () {
-    if type esbulk >/dev/null 2>&1
-    then
-        use_esbulk=true
-        echo "Will use the esbulk utility to index records"
-    else
-        echo "Either esbulk is not installed or its location was not found in PATH" >&2
-    fi
 }
 
 
