@@ -10,7 +10,7 @@ port=27017
 # variables and display warnings only
 
 h_opt () {
-    cat "$script_dir"/help.txt
+    cat "$script_dir"/mongodb-help.txt
 }
 
 # check if shapefile is local or should be downloaded
