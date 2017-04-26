@@ -1,4 +1,4 @@
-# Created 2017-04-23 Sun 20:52
+# Created 2017-04-26 Wed 09:52
 #+TITLE: 
 #+AUTHOR: Matthew Haffner
 
@@ -151,7 +151,7 @@ It should return:
 *** Animated example
 [[file:./images/animated-example.gif]]
 ** Full documentation
-#+BEGIN_SRC
+#+BEGIN_SRC text
   ##### shp2nosql help ##### 
   
   -h : HELP (show this documentation;

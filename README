@@ -151,7 +151,7 @@ It should return:
 *** Animated example
 [[./images/animated-example.gif]]
 ** Full documentation
-#+INCLUDE: "./help.txt" src
+#+INCLUDE: "./help.txt" src text
 * FAQ and common problems
 *Q*: I'm recieving a 413 error while attempting to index documents into
 Elasticsearch. What's going on?
