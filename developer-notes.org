@@ -1,13 +1,8 @@
 * TODO
-- [ ] Make install script
+- [ ] Make install script/.deb install package
   - [ ] add shp2nosql to path
+- [ ] More testing on virtual machines
 - [ ] Change all /echo/ to /printf/?
-- [ ] Use Docker?
-- [ ] Split tools up into shp2mongo and shp2es?
-- [ ] Make a bin folder for shp2nosql?
-  -> be sure to modify PATH location if this is done
-- [ ] Add script location to path
-  - [ ] As a part of installation?
 - [ ] Need to only replace first instance with sed in input-mapping func?? ->
 - [ ] Make all errors go to stderr and exit
 - [ ] Make download available for census blocks and block groups?
@@ -19,6 +14,10 @@
 - [ ] How to deal with 413 errors?
 - [ ] How to handle alternative character sets?
 - [ ] Save parameters to a file?
+- [X] Split tools up into shp2mongo and shp2es
+- [X] Make a bin folder for shp2nosql?
+  -> be sure to modify PATH location if this is done
+- [X] Use Docker? -> Nah
 - [X] Test on virtual machines
 - [X] Make wget command more robust (use postgis book example) -> not really
   necessary 
