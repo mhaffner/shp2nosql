@@ -1,4 +1,4 @@
-# Created 2017-04-23 Sun 19:08
+# Created 2017-05-07 Sun 15:59
 #+TITLE: 
 #+AUTHOR: Matthew Haffner
 
@@ -15,7 +15,7 @@ wish to use.
 The process of inserting/indexing records basically involves
 converting the shapefile to a GeoJSON, formatting the GeoJSON
 appropriately, and preparing the database for spatial queries. This
-process can be tedious especially for Elasticsearch. Without an
+process can be tedious, especially with Elasticsearch. Without an
 appropriate spatial index, you cannot take advantage of
 Elasticsearch's geo queries. While the data type of most fields is
 detected automatically, this is not the case for geographic features.
@@ -31,9 +31,9 @@ tract in Oklahoma)
 ** Required dependencies
 - GDAL (> 2.1)
 - curl
-- Python
+- Python 3+
 - Database (one of the following)
-  - Elasticsearch
+  - Elasticsearch 5+
   - MongoDB
 ** Optional dependencies
 - [[https://github.com/miku/esbulk][esbulk]]
@@ -43,35 +43,29 @@ tract in Oklahoma)
   =PATH=$PATH:~/[shp2nosql-location]/bin= in the terminal)
 - A more robust installation method is perhaps still needed
 * How to use
-** Elasticsearch
+** Elasticsearch (shp2es)
 *** Minimum arguments
 #+BEGIN_SRC text
   -f : data FILE or FILE to get from census type (tract, county, or state)
        arugment: path to file in quotes (if local) or "tract", "county", or "state" 
        example: "/home/user/cities.shp" or "state"              
-  -d : DATABASE type
-       argument: either "elasticsearch" or "mongodb"
-       example: "elasticsearch"
-  -i : INDEX name (elasticsearch only)
+  -i : INDEX name
        argument: name of the index (user's choice)
        example: "states"
-  -t : document TYPE (elasticsearch only)
+  -t : document TYPE
        argument: name of the document type (user's choice)
        example: "state"
 #+END_SRC
-** MongoDB
+** MongoDB (shp2mongo)
 *** Minimum arguments
 #+BEGIN_SRC text
   -f : data FILE or FILE to get from census type (tract, county, or state)
        arugment: path to file in quotes (if local) or "tract", "county", or "state" 
        example: "/home/user/cities.shp" or "state"              
-  -d : DATABASE type
-       argument: either "elasticsearch" or "mongodb"
-       example: "elasticsearch"
-  -D : DATABASE name (mongodb only)
+  -d : DATABASE name
        argument: name of the database (user's choice)
        example: "states"               
-  -c : COLLECTION name (mongodb only)
+  -c : COLLECTION name
        argument: name of the collection (user's choice)
 #+END_SRC
 ** Examples
@@ -84,12 +78,11 @@ A detailed Elasticsearch example:
 
 #+BEGIN_SRC shell
   # Elasticsearch
-  shp2nosql -r -d elasticsearch -f state -i us_states -t state 
+  shp2es -r -f state -i us_states -t state 
   
   # an equivalent, more readable version with comments
-  shp2nosql \
-      -r `# remove the database if it exists` \
-      -d elasticsearch `# database type` \
+  shp2es \
+      -r `# remove the index if it exists` \
       -f state `# file to get from US Census TIGER files` \
       -i us_states `# index name` \
       -t state `# document type`
@@ -118,20 +111,19 @@ A detailed MongoDB example:
 
 #+BEGIN_SRC shell
   # MongoDB
-  shp2nosql -r -d mongodb -f state -D us_states -c state 
+  shp2mongo -r -f state -d us_states -c state 
   
   # an equivalent, more readable version with comments
-  shp2nosql \
+  shp2mongo \
       -r `# remove the database if it exists` \
-      -d mongodb `# database type` \
       -f state `# file to get from US Census TIGER files` \
-      -D us_states `# database name` \
-      -c state `# collection`
+      -d us_states `# database name` \
+      -c state `# collection` \
 #+END_SRC
 
 If you tried the previous example, you'll notice that the tool does not have to
 download the shapefile from the U.S. Census TIGER files again. It simply uses
-the same file. To see if records inserted correctly, try:
+the same file. To see if records inserted correctly, try this from a terminal:
 
 #+BEGIN_SRC shell
   mongo us_states
@@ -151,8 +143,9 @@ It should return:
 *** Animated example
 [[file:./images/animated-example.gif]]
 ** Full documentation
+*** shp2es
 #+BEGIN_SRC
-  ##### shp2nosql help ##### 
+  ##### shp2es help ##### 
   
   -h : HELP (show this documentation;
        arugment: no argument used
@@ -166,20 +159,12 @@ It should return:
   -s : two digit STATE fips code (required when using -f tract)
        argument: two digit state fips code
        example: "40" (state fips code of Oklahoma)               
-  -d : DATABASE type
-       argument: either "elasticsearch" or "mongodb"
-       example: "elasticsearch"
-  -i : INDEX name (elasticsearch only)
+  -i : INDEX name
        argument: name of the index (user's choice)
        example: "states"
-  -t : document TYPE (elasticsearch only)
+  -t : document TYPE
        argument: name of the document type (user's choice)
        example: "state"
-  -D : DATABASE name (mongodb only)
-       argument: name of the database (user's choice)
-       example: "states"               
-  -c : COLLECTION name (mongodb only)
-       argument: name of the collection (user's choice)
   -H : HOST (default is localhost)
        argument: if none supplied, "localhost" is used; otherwise, host name
        example: "127.0.0.01"
@@ -188,7 +173,37 @@ It should return:
        example: "9200"
   -r : REMOVE database or index before inserting records
        argument: no argument used
-  -e : use ESBULK utility (elasticsearch only)
+  -e : use ESBULK utility
+       argument: no argument used
+#+END_SRC
+*** shp2mongo
+#+BEGIN_SRC
+  ##### shp2mongo help ##### 
+  
+  -h : HELP (show this documentation;
+       arugment: no argument used
+  -l : is LOCAL
+       argument: no argument used
+  -f : data FILE or FILE to get from census type (tract, county, or state)
+       arugment: path to file in quotes (if local) or "tract", "county", or "state" 
+       example: "/home/user/cities.shp" or "state"              
+  -m : use MULTIPLE local shapefiles
+       argument: full path to directory in quotes; all shapfiles must be in this directory 
+  -s : two digit STATE fips code (required when using -f tract)
+       argument: two digit state fips code
+       example: "40" (state fips code of Oklahoma)               
+  -d : DATABASE name
+       argument: name of the database (user's choice)
+       example: "states"               
+  -c : COLLECTION name
+       argument: name of the collection (user's choice)
+  -H : HOST (default is localhost)
+       argument: if none supplied, "localhost" is used; otherwise, host name
+       example: "127.0.0.01"
+  -p : PORT
+       argument: if non supplied, 27017
+       example: "27017"
+  -r : REMOVE database or index before inserting records
        argument: no argument used
 #+END_SRC
 * FAQ and common problems
@@ -274,21 +289,18 @@ If services are not running, you can start them with
 #+END_SRC
 
 if your system has =systemd= (this should be the default on Ubuntu >
-16.04 and Arch Linux).
+16.04 and Arch Linux). You may need to enable the service first
+though. 
 
-Be sure that the appropriate arguments are used for each database
-type. For example, Elasticsearch requires arguments for options =-i=
-(index) and =-t= (document type), while MongoDB requires arguments for
-options =-D= (database name) and =-c= (collection name). This
-seemingly inconsistent notation is used so that arguments are
-consistent with the terminology of each database.
+*Q*: Why are arguments different for Elasticsearch and MongoDB?
 
+This seemingly inconsistent notation is used so that arguments are
+consistent with the terminology of each database. For example,
+Elasticsearch requires arguments for options =-i= (index) and =-t=
+(document type), while MongoDB requires arguments for options =-d=
+(database name) and =-c= (collection name). 
 
-#+BEGIN_SRC shell
-  service elasticsearch start
-#+END_SRC
-
-*Q*: The script starts but hangs on 
+*Q*: The script starts but hangs on
 #+BEGIN_SRC
   Resolving ftp2.census.gov... 148.129.75.35, 2610:20:2010:a09:1000:0:9481:4b23
   Connecting to ftp2.census.gov|148.129.75.35|:21... connected.
