@@ -121,9 +121,10 @@ shp2mongo \
     -c state `# collection` \
 #+END_SRC
 
-If you tried the previous example, you'll notice that the tool does not have to
-download the shapefile from the U.S. Census TIGER files again. It simply uses
-the same file. To see if records inserted correctly, try this from a terminal:
+If you tried the previous Elasticsearch example, you'll notice that
+the tool does not have to download the shapefile from the U.S. Census
+TIGER files again. It simply uses the same file. To see if records
+inserted correctly, try this from a terminal:
 
 #+BEGIN_SRC shell 
 mongo us_states
@@ -250,4 +251,5 @@ Connecting to ftp2.census.gov|148.129.75.35|:21... connected.
 *A*: This is an issue with the ftp service of the U.S. Census. It goes down
  periodically. Usually killing the script with =Ctrl-c= and trying again a few
  minutes later solves the problem.
+
 
