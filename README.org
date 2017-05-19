@@ -1,4 +1,4 @@
-# Created 2017-05-07 Sun 15:59
+# Created 2017-05-19 Fri 16:18
 #+TITLE: 
 #+AUTHOR: Matthew Haffner
 
@@ -121,9 +121,10 @@ A detailed MongoDB example:
       -c state `# collection` \
 #+END_SRC
 
-If you tried the previous example, you'll notice that the tool does not have to
-download the shapefile from the U.S. Census TIGER files again. It simply uses
-the same file. To see if records inserted correctly, try this from a terminal:
+If you tried the previous Elasticsearch example, you'll notice that
+the tool does not have to download the shapefile from the U.S. Census
+TIGER files again. It simply uses the same file. To see if records
+inserted correctly, try this from a terminal:
 
 #+BEGIN_SRC shell
   mongo us_states
