@@ -4,8 +4,8 @@
 script_dir="$( cd "$( dirname `which shp2es` )" && cd ../ && pwd )"
 
 ## source in necessary functions
-source "$script_dir"/scripts/wget_census_data.sh
 source "$script_dir"/scripts/prepare_variables_elasticsearch.sh
+source "$script_dir"/scripts/wget_census_data.sh
 source "$script_dir"/scripts/shp2geojson.sh
 source "$script_dir"/scripts/shp2geojson_mult.sh
 source "$script_dir"/scripts/format_geojson.sh
