@@ -25,11 +25,11 @@ do
         l  ) l_opt;; # data source is LOCAL (no arugment needed)
         m  ) m_opt;; # MULTIPLE files (specify directory with shapefiles)
         f  ) f_opt;; # FILE (if local and only one), directory of FILES (if local and multiple), FILE to get from census (if not local)
+        s  ) s_opt;; # STATE fips code (two digit)
         d  ) d_opt;; # DATABASE name
         c  ) c_opt;; # COLLECTION name
         H  ) H_opt;; # HOST
         p  ) p_opt;; # PORT
-        s  ) s_opt;; # STATE fips code (two digit)
         r  ) r_opt;; # REMOVE database or index before reinserting records/documents
         \? ) echo "Unknown option: -$OPTARG" >&2; exit 1;;
         :  ) echo "Arugment required for option -$OPTARG" >&2; exit 1;;
