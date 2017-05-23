@@ -1,5 +1,5 @@
 insert_records () {
-    cd "$script_dir"/data/geojson
+    cd "$pkg_dir"/data/geojson
 
     if [ "$db_type" = "elasticsearch" ]
     then

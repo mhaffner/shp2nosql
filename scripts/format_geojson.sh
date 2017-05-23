@@ -1,6 +1,6 @@
 # format geojson for elasticsearch and mongodb
 format_geojson () {
-    cd "$script_dir"/data/geojson
+    cd "$pkg_dir"/data/geojson
     if [ -a "$1" ] # check if geojson exists
     then
         echo "Formatting geojson for database"
