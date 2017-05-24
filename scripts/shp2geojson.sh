@@ -1,6 +1,6 @@
 # convert shapefile to .geojson
 shp2geojson () {
-    cd "$script_dir"/data/geojson
+    cd "$pkg_dir"/data/geojson
     if [ -a "$1" ] # check if shapefile exists
     then
         geojson="$(basename "$1" .shp).geojson" # use basename of file to create .geojson name

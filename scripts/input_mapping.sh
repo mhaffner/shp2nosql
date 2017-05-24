@@ -10,16 +10,16 @@ input_mapping () {
     if [ "$db_type" = "elasticsearch" ]
     then
         ## navigate to location of mapping
-        cd "$script_dir"/data/mappings
+        cd "$pkg_dir"/data/mappings
 
         ## first line of geojson will be different if esbulk is not installed
         if [ "$use_esbulk" = "true" ]
         then
             # get first line of geojson
-            head -1 "$script_dir"/data/geojson/"$geojson_fmt" | cat mapping-template.json - > index-sample.json
+            head -1 "$pkg_dir"/data/geojson/"$geojson_fmt" | cat mapping-template.json - > index-sample.json
         else
             # get second line of geojson (first line contains request)
-            sed '2q;d' "$script_dir"/data/geojson/"$geojson_fmt" | cat mapping-template.json - > index-sample.json
+            sed '2q;d' "$pkg_dir"/data/geojson/"$geojson_fmt" | cat mapping-template.json - > index-sample.json
         fi
 
         curl -s -XPOST "$host":"$port"/_bulk --data-binary @index-sample.json

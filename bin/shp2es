@@ -1,19 +1,19 @@
 #!/bin/bash
 
 ## get the base directory of the package
-script_dir="$( cd "$( dirname `which shp2es` )" && cd ../ && pwd )"
+pkg_dir="$( cd "$( dirname `which shp2es` )" && cd ../ && pwd )"
 
 ## source in necessary functions
-source "$script_dir"/scripts/prepare_variables_elasticsearch.sh
-source "$script_dir"/scripts/wget_census_data.sh
-source "$script_dir"/scripts/shp2geojson.sh
-source "$script_dir"/scripts/shp2geojson_mult.sh
-source "$script_dir"/scripts/format_geojson.sh
-source "$script_dir"/scripts/format_geojson_mult.sh
-source "$script_dir"/scripts/remove_database.sh
-source "$script_dir"/scripts/input_mapping.sh
-source "$script_dir"/scripts/insert_records.sh
-source "$script_dir"/scripts/insert_records_mult.sh
+source "$pkg_dir"/scripts/wget_census_data.sh
+source "$pkg_dir"/scripts/prepare_variables_elasticsearch.sh
+source "$pkg_dir"/scripts/shp2geojson.sh
+source "$pkg_dir"/scripts/shp2geojson_mult.sh
+source "$pkg_dir"/scripts/format_geojson.sh
+source "$pkg_dir"/scripts/format_geojson_mult.sh
+source "$pkg_dir"/scripts/remove_database.sh
+source "$pkg_dir"/scripts/input_mapping.sh
+source "$pkg_dir"/scripts/insert_records.sh
+source "$pkg_dir"/scripts/insert_records_mult.sh
 
 # read options and set variables before executing functions
 options='hlmf:s:i:t:H:p:re'

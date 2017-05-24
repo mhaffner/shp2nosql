@@ -11,7 +11,7 @@ use_esbulk=false
 # variables and display warnings only
 
 h_opt () {
-    cat "$script_dir"/elasticsearch-help.txt
+    cat "$pkg_dir"/elasticsearch-help.txt
 }
 
 # check if shapefile is local or should be downloaded

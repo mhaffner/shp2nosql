@@ -9,7 +9,7 @@ db_type=mongodb
 # variables and display warnings only
 
 h_opt () {
-    cat "$script_dir"/help.txt
+    cat "$pkg_dir"/help.txt
 }
 
 # check if shapefile is local or should be downloaded
