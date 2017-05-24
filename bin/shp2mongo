@@ -20,7 +20,7 @@ options='hlmf:d:c:H:p:s:r'
 while getopts "$options" option
 do
     case "$option" in
-        h  ) h_opt; exit;; # HELP/documentation
+        h  ) h_opt; exit 0;; # HELP/documentation
         l  ) l_opt;; # data source is LOCAL (no arugment needed)
         m  ) m_opt;; # MULTIPLE files (specify directory with shapefiles)
         f  ) f_opt;; # FILE (if local and only one), directory of FILES (if local and multiple), FILE to get from census (if not local)
@@ -41,7 +41,6 @@ wget_census_data
 shp2geojson_mult
 format_geojson_mult
 remove_database
-input_mapping
 insert_records_mult
 
 printf "\nComplete"

@@ -20,7 +20,7 @@ options='hlmf:s:i:t:H:p:re'
 while getopts "$options" option
 do
     case "$option" in
-        h  ) h_opt; exit;; # HELP/documentation
+        h  ) h_opt; exit 0;; # HELP/documentation
         l  ) l_opt;; # data source is LOCAL (no arugment needed)
         m  ) m_opt;; # MULTIPLE files (specify directory with shapefiles)
         f  ) f_opt;; # FILE (if local and only one), directory of FILES (if local and multiple), FILE to get from census (if not local)
