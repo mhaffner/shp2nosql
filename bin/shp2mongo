@@ -15,8 +15,7 @@ source "$script_dir"/scripts/input_mapping.sh
 source "$script_dir"/scripts/insert_records.sh
 source "$script_dir"/scripts/insert_records_mult.sh
 
-## this executes the functions sourced above if the corresponding argument is
-## given
+# read options and set variables before executing functions
 options='hlmf:d:c:H:p:s:r'
 while getopts "$options" option
 do
@@ -37,6 +36,7 @@ do
     esac
 done
 
+## execute the functions sourced above based on user options
 wget_census_data
 shp2geojson_mult
 format_geojson_mult
