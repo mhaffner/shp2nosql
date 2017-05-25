@@ -1,15 +1,13 @@
-# convert shapefile to .geojson
-shp2geojson () {
-    cd "$pkg_dir"/data/geojson
-    if [ -a "$1" ] # check if shapefile exists
+# if multiple files are to be indexed/inserted
+shp2geojson_mult () {
+    if [ "$multiple_files" = true ]
     then
-        geojson="$(basename "$1" .shp).geojson" # use basename of file to create .geojson name
-        echo "Converting shapefile to .geojson"
-        ogr2ogr -f GeoJSON "$geojson" "$1" -t_srs EPSG:4326
-        #http://spatialreference.org/ref/epsg/4326/ not working anymore?
+        for i in "$shapefile_dir"/*shp
+        do
+            shp2geojson $i
+        done
     else
-        echo "Shapefile does not exist" >&2
-        exit 1
+        shp2geojson "$shapefile"
     fi
 }
 
