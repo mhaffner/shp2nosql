@@ -1,5 +1,5 @@
 ## remove database before inserting records
-remove_database () {
+remove_datastore () {
     if [ "$remove" = "true" ] && [ "$db_type" = "elasticsearch" ]
     then
         ## check if index exists
