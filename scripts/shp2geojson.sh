@@ -1,5 +1,5 @@
 # convert shapefile to .geojson
-shp2geojson () {
+shp2geojson_single () {
     echo "$pkg_dir"
     cd "$pkg_dir"/data/geojson
     if [ -a "$1" ] # check if shapefile exists
@@ -15,16 +15,15 @@ shp2geojson () {
 }
 
 # check if multiple files are present, then convert
-shp2geojson_mult () {
+shp2geojson () {
     if [ "$multiple_files" = true ]
     then
         for i in "$shapefile_dir"/*shp
         do
-            shp2geojson $i
+            shp2geojson_single $i
         done
     else
-        echo "$shapefile"
-        shp2geojson "$shapefile"
+        shp2geojson_single "$shapefile"
     fi
 }
 

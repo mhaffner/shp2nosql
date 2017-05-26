@@ -19,7 +19,6 @@ wget_census_data () {
                 unzip tl_2016_us_state.zip
             fi
             shapefile="$pkg_dir"/data/shapefiles/tl_2016_us_state.shp
-            echo "$shapefile"
         elif [ "$census_prod" = "tract" ]
         then
             if [ -z "$state_fips" ]
