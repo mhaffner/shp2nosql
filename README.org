@@ -1,4 +1,4 @@
-# Created 2017-05-19 Fri 16:18
+# Created 2017-05-26 Fri 16:27
 #+TITLE: 
 #+AUTHOR: Matthew Haffner
 
@@ -34,21 +34,29 @@ tract in Oklahoma)
 - Python 3+
 - Database (one of the following)
   - Elasticsearch 5+
-  - MongoDB
+  - MongoDB 3+
 ** Optional dependencies
 - [[https://github.com/miku/esbulk][esbulk]]
 ** Installation
 - Use =git clone https://gitbhub.com/mhaffner/shp2nosql=
 - Add the =shp2nosql/bin= directory to your path (e.g. execute
   =PATH=$PATH:~/[shp2nosql-location]/bin= in the terminal)
-- A more robust installation method is perhaps still needed
+- A =.deb= is coming soon!
 * How to use
 ** Elasticsearch (shp2es)
 *** Minimum arguments
 #+BEGIN_SRC text
-  -f : data FILE or FILE to get from census type (tract, county, or state)
+  -l : is LOCAL
+       argument: path to shapefile (relative or absolute)
+       example: "/home/user/cities.shp" or just "cities.shp"
+  OR 
+  
+  -f : FEATURES to get from census (tract, county, or state)
        arugment: path to file in quotes (if local) or "tract", "county", or "state" 
-       example: "/home/user/cities.shp" or "state"              
+       example: "state"          
+  
+  AND
+  
   -i : INDEX name
        argument: name of the index (user's choice)
        example: "states"
@@ -59,9 +67,17 @@ tract in Oklahoma)
 ** MongoDB (shp2mongo)
 *** Minimum arguments
 #+BEGIN_SRC text
-  -f : data FILE or FILE to get from census type (tract, county, or state)
+  -l : is LOCAL
+       argument: path to shapefile (relative or absolute)
+       example: "/home/user/cities.shp" or just "cities.shp"
+  OR 
+  
+  -f : FEATURES to get from census (tract, county, or state)
        arugment: path to file in quotes (if local) or "tract", "county", or "state" 
-       example: "/home/user/cities.shp" or "state"              
+       example: "state"          
+  
+  AND
+  
   -d : DATABASE name
        argument: name of the database (user's choice)
        example: "states"               
@@ -142,7 +158,7 @@ It should return:
   56
 #+END_SRC
 *** Animated example
-[[file:./images/animated-example.gif]]
+- Coming soon!
 ** Full documentation
 *** shp2es
 #+BEGIN_SRC
@@ -151,12 +167,14 @@ It should return:
   -h : HELP (show this documentation;
        arugment: no argument used
   -l : is LOCAL
-       argument: no argument used
-  -f : data FILE or FILE to get from census type (tract, county, or state)
+       argument: path to shapefile (relative or absolute)
+       example: "/home/user/cities.shp" or just "cities.shp"
+  -f : FEATURES to get from census (tract, county, or state)
        arugment: path to file in quotes (if local) or "tract", "county", or "state" 
-       example: "/home/user/cities.shp" or "state"              
+       example: "state"          
   -m : use MULTIPLE local shapefiles
        argument: full path to directory in quotes; all shapfiles must be in this directory 
+       example: "/home/user/shapefiles"
   -s : two digit STATE fips code (required when using -f tract)
        argument: two digit state fips code
        example: "40" (state fips code of Oklahoma)               
@@ -184,12 +202,14 @@ It should return:
   -h : HELP (show this documentation;
        arugment: no argument used
   -l : is LOCAL
-       argument: no argument used
-  -f : data FILE or FILE to get from census type (tract, county, or state)
+       argument: path to shapefile (relative or absolute)
+       example: "/home/user/cities.shp" or just "cities.shp"
+  -f : FEATURES to get from census (tract, county, or state)
        arugment: path to file in quotes (if local) or "tract", "county", or "state" 
-       example: "/home/user/cities.shp" or "state"              
+       example: "state"          
   -m : use MULTIPLE local shapefiles
        argument: full path to directory in quotes; all shapfiles must be in this directory 
+       example: "/home/user/shapefiles"
   -s : two digit STATE fips code (required when using -f tract)
        argument: two digit state fips code
        example: "40" (state fips code of Oklahoma)               

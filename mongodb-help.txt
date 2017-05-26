@@ -6,7 +6,7 @@
 -l : is LOCAL
      argument: path to shapefile (relative or absolute)
      example: "/home/user/cities.shp" or just "cities.shp"
--f : data FILE or FILE to get from census type (tract, county, or state)
+-f : FEATURES to get from census (tract, county, or state)
      arugment: path to file in quotes (if local) or "tract", "county", or "state" 
      example: "state"          
 -m : use MULTIPLE local shapefiles

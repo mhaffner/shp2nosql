@@ -34,21 +34,29 @@ tract in Oklahoma)
 - Python 3+
 - Database (one of the following)
   - Elasticsearch 5+
-  - MongoDB
+  - MongoDB 3+
 ** Optional dependencies
 - [[https://github.com/miku/esbulk][esbulk]] 
 ** Installation
 - Use =git clone https://gitbhub.com/mhaffner/shp2nosql=
 - Add the =shp2nosql/bin= directory to your path (e.g. execute
   =PATH=$PATH:~/[shp2nosql-location]/bin= in the terminal)
-- A more robust installation method is perhaps still needed
+- A =.deb= is coming soon!
 * How to use 
 ** Elasticsearch (shp2es)
 *** Minimum arguments
 #+BEGIN_SRC text
--f : data FILE or FILE to get from census type (tract, county, or state)
+-l : is LOCAL
+     argument: path to shapefile (relative or absolute)
+     example: "/home/user/cities.shp" or just "cities.shp"
+OR 
+
+-f : FEATURES to get from census (tract, county, or state)
      arugment: path to file in quotes (if local) or "tract", "county", or "state" 
-     example: "/home/user/cities.shp" or "state"              
+     example: "state"          
+
+AND
+
 -i : INDEX name
      argument: name of the index (user's choice)
      example: "states"
@@ -59,9 +67,17 @@ tract in Oklahoma)
 ** MongoDB (shp2mongo)
 *** Minimum arguments
 #+BEGIN_SRC text
--f : data FILE or FILE to get from census type (tract, county, or state)
+-l : is LOCAL
+     argument: path to shapefile (relative or absolute)
+     example: "/home/user/cities.shp" or just "cities.shp"
+OR 
+
+-f : FEATURES to get from census (tract, county, or state)
      arugment: path to file in quotes (if local) or "tract", "county", or "state" 
-     example: "/home/user/cities.shp" or "state"              
+     example: "state"          
+
+AND
+
 -d : DATABASE name
      argument: name of the database (user's choice)
      example: "states"               
@@ -142,7 +158,7 @@ It should return:
 56
 #+END_SRC
 *** Animated example
-[[./images/animated-example.gif]]
+- Coming soon!
 ** Full documentation
 *** shp2es
 #+INCLUDE: "./elasticsearch-help.txt" src
