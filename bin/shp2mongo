@@ -1,7 +1,10 @@
 #!/bin/bash
 
+## preallocate variables
 ## get the base directory of the package
-pkg_dir="$( cd "$( dirname `which shp2mongo` )" && cd ../ && pwd )"
+pkg_dir="$( cd "$( dirname `which shp2mongo` )" && cd ../ && PD )"
+db_type=mongodb
+
 
 ## source in necessary functions
 source "$pkg_dir"/scripts/prepare_variables_mongodb.sh
@@ -19,10 +22,10 @@ options='hlmf:d:c:H:p:s:r'
 while getopts "$options" option
 do
     case "$option" in
-        h  ) h_opt; exit 0;; # HELP/documentation
-        l  ) l_opt;; # data source is LOCAL (no arugment needed)
-        m  ) m_opt;; # MULTIPLE files (specify directory with shapefiles)
-        f  ) f_opt;; # FILE (if local and only one), directory of FILES (if local and multiple), FILE to get from census (if not local)
+        h  ) h_opt; exit 0;; # display HELP/documentation
+        l  ) l_opt;; # data source is LOCAL; specify path to local shapefile
+        m  ) m_opt;; # MULTIPLE files; specify directory of shapefiles
+        f  ) f_opt;; # FEATURE to get from census
         s  ) s_opt;; # STATE fips code (two digit)
         d  ) d_opt;; # DATABASE name
         c  ) c_opt;; # COLLECTION name

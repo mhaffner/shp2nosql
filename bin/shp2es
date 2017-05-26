@@ -1,18 +1,17 @@
 #!/bin/bash
 
-## get the base directory of the package
+## preallocate variables
+# get the base directory of the package
 pkg_dir="$( cd "$( dirname `which shp2es` )" && cd ../ && pwd )"
+db_type=elasticsearch
 
 ## source in necessary functions
-source "$pkg_dir"/scripts/prepare_variables_elasticsearch.sh
+source "$pkg_dir"/scripts/prepare_variables.sh
 source "$pkg_dir"/scripts/wget_census_data.sh
-source "$pkg_dir"/scripts/shp2geojson_single.sh
 source "$pkg_dir"/scripts/shp2geojson.sh
-source "$pkg_dir"/scripts/format_geojson_single.sh
 source "$pkg_dir"/scripts/format_geojson.sh
 source "$pkg_dir"/scripts/remove_database.sh
 source "$pkg_dir"/scripts/input_mapping.sh
-source "$pkg_dir"/scripts/input_records_single.sh
 source "$pkg_dir"/scripts/input_records.sh
 
 # read options and set variables before executing functions
@@ -30,7 +29,7 @@ do
         H  ) H_opt;; # HOST
         p  ) p_opt;; # PORT
         r  ) r_opt;; # REMOVE database or index before reinserting records/documents
-        e  ) e_opt;; # use ESBULK (multiprocessing utility)
+        e  ) e_opt;; # use ESBULK multiprocessing utility
         \? ) echo "Unknown option: -$OPTARG" >&2; exit 1;;
         :  ) echo "Arugment required for option -$OPTARG" >&2; exit 1;;
         *  ) echo "Unused option: -$OPTARG" >&2; exit 1;;
