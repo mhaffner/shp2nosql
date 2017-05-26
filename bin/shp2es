@@ -20,15 +20,18 @@ while getopts "$options" option
 do
     case "$option" in
         h  ) h_opt; exit 0;; # HELP/documentation
-        l  ) l_opt;; # data source is LOCAL (no arugment needed)
-        m  ) m_opt;; # MULTIPLE files (specify directory with shapefiles)
-        f  ) f_opt;; # FILE (if local and only one), directory of FILES (if local and multiple), FILE to get from census (if not local)
+        l  ) l_opt;; # data source is LOCAL; argument is path to file
+        m  ) m_opt;; # MULTIPLE files; argument is path to directory with
+                     # shapefiles
+        f  ) f_opt;; # FEATURE to get from U.S. Census; argument must be
+                     # "state", "county", or "tract"
         s  ) s_opt;; # STATE fips code (two digit)
         i  ) i_opt;; # INDEX name
         t  ) t_opt;; # document TYPE
         H  ) H_opt;; # HOST
         p  ) p_opt;; # PORT
-        r  ) r_opt;; # REMOVE database or index before reinserting records/documents
+        r  ) r_opt;; # REMOVE database or index before reinserting
+                     # records/documents
         e  ) e_opt;; # use ESBULK multiprocessing utility
         \? ) echo "Unknown option: -$OPTARG" >&2; exit 1;;
         :  ) echo "Arugment required for option -$OPTARG" >&2; exit 1;;
