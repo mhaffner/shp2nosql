@@ -6,14 +6,15 @@
 - [ ] Need to only replace first instance with sed in input-mapping func?? ->
 - [ ] Make all errors go to stderr and exit
 - [ ] Make download available for census blocks and block groups?
-- [ ] Move shp2nosql executable to ./bin folder
-- [ ] Suppress elasticsearch output while in scripts
-- [ ] Allow users to specify their own geojson instead of shapefile -> call this
-  geojson2nosql 
+- [ ] Suppress elasticsearch output while in scripts?
 - [ ] Create option for spatial index on mongodb data after indexing?
 - [ ] How to deal with 413 errors?
 - [ ] How to handle alternative character sets?
 - [ ] Save parameters to a file?
+- [ ] Allow users to specify their own geojson instead of shapefile -> call this
+  geojson2nosql -> probably not practical as =ogr2ogr= formats the
+  .geojson in a desirable way, and this wouldn't be guaranteed otherwise
+- [X] Move shp2nosql executable to ./bin folder
 - [X] Split tools up into shp2mongo and shp2es
 - [X] Make a bin folder for shp2nosql?
   -> be sure to modify PATH location if this is done
