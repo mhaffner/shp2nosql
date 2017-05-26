@@ -4,12 +4,14 @@
 -h : HELP (show this documentation;
      arugment: no argument used
 -l : is LOCAL
-     argument: no argument used
+     argument: path to shapefile (relative or absolute)
+     example: "/home/user/cities.shp" or just "cities.shp"
 -f : data FILE or FILE to get from census type (tract, county, or state)
      arugment: path to file in quotes (if local) or "tract", "county", or "state" 
-     example: "/home/user/cities.shp" or "state"              
+     example: "state"          
 -m : use MULTIPLE local shapefiles
      argument: full path to directory in quotes; all shapfiles must be in this directory 
+     example: "/home/user/shapefiles"
 -s : two digit STATE fips code (required when using -f tract)
      argument: two digit state fips code
      example: "40" (state fips code of Oklahoma)               
