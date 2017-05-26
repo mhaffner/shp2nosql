@@ -6,14 +6,11 @@ pkg_dir="$( cd "$( dirname `which shp2mongo` )" && cd ../ && PD )"
 db_type=mongodb
 
 ## source in necessary functions
-source "$pkg_dir"/scripts/prepare_variables_mongodb.sh
+source "$pkg_dir"/scripts/prepare_variables.sh
 source "$pkg_dir"/scripts/wget_census_data.sh
-source "$pkg_dir"/scripts/shp2geojson_single.sh
 source "$pkg_dir"/scripts/shp2geojson.sh
-source "$pkg_dir"/scripts/format_geojson_single.sh
 source "$pkg_dir"/scripts/format_geojson.sh
 source "$pkg_dir"/scripts/remove_database.sh
-source "$pkg_dir"/scripts/input_records_single.sh
 source "$pkg_dir"/scripts/input_records.sh
 
 # read options and set variables before executing functions
