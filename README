@@ -30,6 +30,7 @@ tract in Oklahoma)
 
 ** Required dependencies
 - GDAL (> 2.1)
+- Wget 
 - curl
 - Python 3+
 - Database (one of the following)

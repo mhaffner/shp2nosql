@@ -1,4 +1,4 @@
-# Created 2017-05-26 Fri 16:27
+# Created 2017-05-27 Sat 01:42
 #+TITLE: 
 #+AUTHOR: Matthew Haffner
 
@@ -30,6 +30,7 @@ tract in Oklahoma)
 
 ** Required dependencies
 - GDAL (> 2.1)
+- Wget
 - curl
 - Python 3+
 - Database (one of the following)
