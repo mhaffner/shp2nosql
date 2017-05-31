@@ -15,7 +15,7 @@ source "$pkg_dir"/scripts/input_mapping.sh
 source "$pkg_dir"/scripts/input_records.sh
 
 # read options and set variables before executing functions
-options='hlmf:s:i:t:H:p:re'
+options='hl:m:f:s:i:t:H:p:re'
 while getopts "$options" option
 do
     case "$option" in
