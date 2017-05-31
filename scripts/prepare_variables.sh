@@ -55,6 +55,7 @@ m_opt () {
         echo "Input must be a directory" >&2
     fi
 }
+
 f_opt () {
     # "${OPTARG,,}" converts the argument to lowercase via bash string manipulation
     census_prod="${OPTARG,,}"
