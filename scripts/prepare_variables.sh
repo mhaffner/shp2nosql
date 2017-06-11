@@ -98,8 +98,8 @@ t_opt () {
 
 # get database name (MongoDB only)
 d_opt () {
-    database_name="$OPTARG" # should not be converted to lowercase; database names can be upper or lower
-    echo "Using database $database_name"
+    db_name="$OPTARG" # should not be converted to lowercase; database names can be upper or lower
+    echo "Using database $db_name"
 }
 
 # get collection name (MongoDB only)
