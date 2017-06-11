@@ -5,7 +5,7 @@ sudo apt-get update
 sudo apt-get install git gdal-bin curl oracle-java8-installer vim
 cd ~
 git clone https://github.com/mhaffner/shp2nosql ~/git-repos/shp2nosql
-PATH=$PATH:~/shp2nosql/bin
+export PATH=$PATH:~/git-repos/shp2nosql/bin
 
 # install and start elasticsearch
 wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -
