@@ -96,6 +96,18 @@ t_opt () {
     echo "Using document type $doc_type"
 }
 
+# get database name (MongoDB only)
+d_opt () {
+    database_name="$OPTARG" # should not be converted to lowercase; database names can be upper or lower
+    echo "Using database $database_name"
+}
+
+# get collection name (MongoDB only)
+c_opt () {
+    collection_name="$OPTARG" # should not be converted to lowercase; collection names can be upper or lower
+    echo "Using collection $collection_name"
+}
+
 # get host (external ip_address)
 H_opt () {
     host="$OPTARG"
