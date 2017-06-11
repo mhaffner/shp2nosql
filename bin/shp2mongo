@@ -2,7 +2,7 @@
 
 ## preallocate variables
 ## get the base directory of the package
-pkg_dir="$( cd "$( dirname `which shp2mongo` )" && cd ../ && PD )"
+pkg_dir="$( cd "$( dirname `which shp2mongo` )" && cd ../ && pwd )"
 db_type=mongodb
 
 ## source in necessary functions
@@ -14,7 +14,7 @@ source "$pkg_dir"/scripts/remove_datastore.sh
 source "$pkg_dir"/scripts/input_records.sh
 
 # read options and set variables before executing functions
-options='hl:m:f:s:i:t:H:p:re'
+options='hl:m:f:s:d:c:H:p:re'
 while getopts "$options" option
 do
     case "$option" in
