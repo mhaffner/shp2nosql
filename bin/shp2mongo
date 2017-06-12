@@ -30,9 +30,9 @@ do
         H  ) H_opt;; # HOST
         p  ) p_opt;; # PORT
         r  ) r_opt;; # REMOVE database or index before reinserting records/documents
-        \? ) echo "Unknown option: -$OPTARG" >&2; exit 1;;
-        :  ) echo "Arugment required for option -$OPTARG" >&2; exit 1;;
-        *  ) echo "Unused option: -$OPTARG" >&2; exit 1;;
+        \? ) exit 1;; # option not recognized
+        :  ) exit 1;; # argument required
+        *  ) exit 1;; # option not used
     esac
 done
 
