@@ -20,6 +20,7 @@
      example: "states"               
 -c : COLLECTION name
      argument: name of the collection (user's choice)
+     example: "state"               
 -H : HOST (default is localhost)
      argument: if none supplied, "localhost" is used; otherwise, host name
      example: "127.0.0.01"
