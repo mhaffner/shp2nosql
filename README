@@ -33,28 +33,39 @@ tract in Oklahoma)
 - Wget 
 - curl
 - Python 3+
-- Database (one of the following)
+- NoSQL system (one of the following)
   - Elasticsearch 5+
   - MongoDB 3+
 ** Optional dependencies
 - [[https://github.com/miku/esbulk][esbulk]] 
 ** Installation
-- Use =git clone https://gitbhub.com/mhaffner/shp2nosql=
-- Add the =shp2nosql/bin= directory to your path (e.g. execute
-  =PATH=$PATH:~/[shp2nosql-location]/bin= in the terminal)
-- A =.deb= is coming soon!
+*** Method 1
+- Use =git clone https://github.com/mhaffner/shp2nosql=
+- Add the =shp2nosql/bin= directory to your path (e.g. execute =export
+  PATH=$PATH:~/path/to/shp2nosql/bin= in the terminal)
+*** Method 2
+- Download and unzip the latest release from [[https://github.com/mhaffner/shp2nosql/releases][here]].
+- Add the =shp2nosql/bin= directory to your path (e.g. execute =export
+  PATH=$PATH:~/path/to/shp2nosql/bin= in the terminal)
+
 * How to use 
 ** Elasticsearch (shp2es)
 *** Minimum arguments
 #+BEGIN_SRC text
+-f : FEATURES to get from U.S. census (tract, county, or state)
+     arugment: path to file in quotes (if local) or "tract", "county", or "state" 
+     example: "state"          
+OR 
+
 -l : is LOCAL
      argument: path to shapefile (relative or absolute)
      example: "/home/user/cities.shp" or just "cities.shp"
-OR 
 
--f : FEATURES to get from census (tract, county, or state)
-     arugment: path to file in quotes (if local) or "tract", "county", or "state" 
-     example: "state"          
+OR
+
+-m : use MULTIPLE local shapefiles
+     argument: full path to directory in quotes; all shapfiles must be in this directory 
+     example: "/home/user/shapefiles"
 
 AND
 
@@ -68,14 +79,21 @@ AND
 ** MongoDB (shp2mongo)
 *** Minimum arguments
 #+BEGIN_SRC text
+-f : FEATURES to get from U.S. census (tract, county, or state)
+     arugment: path to file in quotes (if local) or "tract", "county", or "state" 
+     example: "state"          
+
+OR 
+
 -l : is LOCAL
      argument: path to shapefile (relative or absolute)
      example: "/home/user/cities.shp" or just "cities.shp"
-OR 
 
--f : FEATURES to get from census (tract, county, or state)
-     arugment: path to file in quotes (if local) or "tract", "county", or "state" 
-     example: "state"          
+OR
+
+-m : use MULTIPLE local shapefiles
+     argument: full path to directory in quotes; all shapfiles must be in this directory 
+     example: "/home/user/shapefiles"
 
 AND
 
@@ -158,8 +176,6 @@ It should return:
 #+BEGIN_SRC
 56
 #+END_SRC
-*** Animated example
-- Coming soon!
 ** Full documentation
 *** shp2es
 #+INCLUDE: "./elasticsearch-help.txt" src
