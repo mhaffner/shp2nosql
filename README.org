@@ -1,20 +1,20 @@
-# Created 2017-06-12 Mon 00:47
+# Created 2017-06-12 Mon 16:59
 #+TITLE: 
 #+AUTHOR: Matthew Haffner
 
 
 * shp2nosql
 This package, shp2nosql, is a set of command line tools for working
-with geospatial data and NoSQL databases such as Elasticsearch and
+with geospatial data and NoSQL systems such as Elasticsearch and
 MongoDB. It is designed to be fairly standardized with reasonable
 defaults so that the intricacies of inserting/indexing geospatial data
-(mainly shapefiles) need not be mastered for each individual database.
-It does, however, require /some/ working knowledge the database you
+(mainly shapefiles) need not be mastered for each individual system.
+It does, however, require /some/ working knowledge the system you
 wish to use. 
 
 The process of inserting/indexing records basically involves
 converting the shapefile to a GeoJSON, formatting the GeoJSON
-appropriately, and preparing the database for spatial queries. This
+appropriately, and preparing the system for spatial queries. This
 process can be tedious, especially with Elasticsearch. Without an
 appropriate spatial index, you cannot take advantage of
 Elasticsearch's geo queries. While the data type of most fields is
@@ -24,9 +24,9 @@ issues.
 
 Further, this set of tools has options to get shapefiles directly from
 U.S. Census TIGER files using =wget=. This could be useful for testing
-the features of each database or for querying your own data against
-the Census's (e.g. count how many points are within each census
-tract in Oklahoma)
+the features of each system or for querying social media data against
+the Census's (e.g. count how many tweets are within each census tract
+in Oklahoma)
 
 ** Required dependencies
 - GDAL (> 2.1)
@@ -186,7 +186,7 @@ It should return:
   -l : is LOCAL
        argument: path to shapefile (relative or absolute)
        example: "/home/user/cities.shp" or just "cities.shp"
-  -f : FEATURES to get from census (tract, county, or state)
+  -f : FEATURES to get from U.S. census (tract, county, or state)
        arugment: path to file in quotes (if local) or "tract", "county", or "state" 
        example: "state"          
   -m : use MULTIPLE local shapefiles
@@ -221,7 +221,7 @@ It should return:
   -l : is LOCAL
        argument: path to shapefile (relative or absolute)
        example: "/home/user/cities.shp" or just "cities.shp"
-  -f : FEATURES to get from census (tract, county, or state)
+  -f : FEATURES to get from U.S. census (tract, county, or state)
        arugment: path to file in quotes (if local) or "tract", "county", or "state" 
        example: "state"          
   -m : use MULTIPLE local shapefiles
@@ -235,6 +235,7 @@ It should return:
        example: "states"               
   -c : COLLECTION name
        argument: name of the collection (user's choice)
+       example: "state"               
   -H : HOST (default is localhost)
        argument: if none supplied, "localhost" is used; otherwise, host name
        example: "127.0.0.01"
@@ -256,8 +257,8 @@ consider adjusting http.maxRequestLength in
 the =[[github.com/miku/esbulk][esbulk]]= utility (must be installed and found in your path) with the
 -e flag
 
-*Q*: My shapefile has /n/ features, so why does my database have /n - x/
-features (i.e. not all features were indexed/inserted)?
+*Q*: My shapefile has /n/ features, so why does my database/index have
+/n - x/ features (i.e. not all features were indexed/inserted)?
 
 *A*: This could be due to a topology error. Visit the directory
 =shp2nosql/data/geojson= and view the features with a text editor
@@ -299,13 +300,13 @@ informative. What's going on?
 persists. If geometry is malformed, =esbulk= may not return an informative
 error.
 
-*Q*: I installed Elasticsearch/MongoDB, but I get an error asking if the
-database is running. How do I check this?
+*Q*: I installed Elasticsearch/MongoDB, but I get an error asking if
+the system is running. How do I check this?
 
 *A*: To check if Elasticsearch is running, use
 
 #+BEGIN_SRC shell
-  curl host:port
+  curl host:port # e.g. curl localhost:9200
 #+END_SRC
 
 If it is running, it should output some meaningful information about your
@@ -333,10 +334,10 @@ though.
 *Q*: Why are arguments different for Elasticsearch and MongoDB?
 
 This seemingly inconsistent notation is used so that arguments are
-consistent with the terminology of each database. For example,
+consistent with the terminology of each system. For example,
 Elasticsearch requires arguments for options =-i= (index) and =-t=
 (document type), while MongoDB requires arguments for options =-d=
-(database name) and =-c= (collection name). 
+(database name) and =-c= (collection name).
 
 *Q*: The script starts but hangs on
 #+BEGIN_SRC
