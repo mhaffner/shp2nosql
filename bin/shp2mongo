@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## preallocate variables
-## get the base directory of the package
+# get the base directory of the package
 pkg_dir="$( cd "$( dirname `which shp2mongo` )" && cd ../ && pwd )"
 db_type=mongodb
 
@@ -13,7 +13,7 @@ source "$pkg_dir"/scripts/format_geojson.sh
 source "$pkg_dir"/scripts/remove_datastore.sh
 source "$pkg_dir"/scripts/input_records.sh
 
-# read options and set variables before executing functions
+## read options and set variables before executing functions
 options='hl:m:f:s:d:c:H:p:re'
 while getopts "$options" option
 do

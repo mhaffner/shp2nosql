@@ -14,7 +14,7 @@ source "$pkg_dir"/scripts/remove_datastore.sh
 source "$pkg_dir"/scripts/input_mapping.sh
 source "$pkg_dir"/scripts/input_records.sh
 
-# read options and set variables before executing functions
+## read options and set variables before executing functions
 options='hl:m:f:s:i:t:H:p:re'
 while getopts "$options" option
 do
