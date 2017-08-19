@@ -3,7 +3,13 @@ FROM centos
 MAINTAINER Matthew Haffner <haffner.matthew.m@gmail.com>
 
 # install dependencies
-RUN yum install -y wget git which java-1.8.0-openjdk
+RUN yum group install -y "Development Tools"
+RUN yum install -y wget git which gcc java-1.8.0-openjdk
+
+# build gdal from source
+RUN wget http://download.osgeo.org/gdal/2.2.1/gdal-2.2.1.tar.gz
+RUN tar -xzvf gdal-2.2.1.tar.gz
+RUN cd gdal-2.2.1
 
 # create user since elasticsearch cannot be run as root
 RUN useradd -ms /bin/bash shp2nosql-user
