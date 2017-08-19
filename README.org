@@ -1,4 +1,4 @@
-# Created 2017-06-12 Mon 16:59
+# Created 2017-08-19 Sat 00:11
 #+TITLE: 
 #+AUTHOR: Matthew Haffner
 
@@ -32,6 +32,7 @@ in Oklahoma)
 - GDAL (> 2.1)
 - Wget
 - curl
+- which
 - Python 3+
 - NoSQL system (one of the following)
   - Elasticsearch 5+
