@@ -3,7 +3,7 @@ FROM centos
 MAINTAINER Matthew Haffner <haffner.matthew.m@gmail.com>
 
 # install dependencies
-RUN yum install -y wget git java-1.8.0-openjdk
+RUN yum install -y wget git which java-1.8.0-openjdk
 
 # create user since elasticsearch cannot be run as root
 RUN useradd -ms /bin/bash shp2nosql-user
@@ -22,3 +22,10 @@ RUN tar -xzvf elasticsearch-5.5.2.tar.gz
 # download and unpack mongodb
 RUN wget https://fastdl.mongodb.org/linux/mongodb-linux-x86_64-3.4.7.tgz
 RUN tar -xzvf mongodb-linux-x86_64-3.4.7.tgz
+
+# clone the git repository and export add tool to path
+RUN git clone https://github.com/mhaffner/shp2nosql.git
+
+# add/run the startup script (starts elasticsearch and mongodb)
+ADD startup.sh /home/shp2nosql-user/startup.sh
+ENTRYPOINT bash startup.sh &> out.log; export PATH=$PATH:~/shp2nosql/bin:~/mongodb-linux-x86_64-3.4.7/bin; /bin/bash
